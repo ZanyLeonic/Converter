@@ -6,6 +6,7 @@ import sys
 import webbrowser
 import configparser
 import logging
+import lbtlib
 
 appname="Leonic Binary Tool"
 version="0.1a"
@@ -30,43 +31,6 @@ licenseabout="""
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     """
 
-def text2binary(inputtext):
-    bits = bin(int.from_bytes(inputtext.encode(encoding='utf-8', errors='surrogatepass'), 'big'))[2:]
-    return bits.zfill(8 * ((len(bits) + 7) // 8))
-
-def binary2text(inputbin):
-    n = int(inputbin, 2)
-    return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding='utf-8', errors='surrogatepass') or '\0'
-
-def int2binary(inputint):
-    try:
-        num = int(inputint)
-        output = '{0:08b}'.format(num)
-        return output
-    except:
-        print("Failed to parse the input as a integer. Please make sure your number is a whole number and doesn't have anything else, except numbers.")
-
-def binary2int(inputbin):
-    try:
-        integer = int(inputbin, 2)
-        return integer
-    except:
-        print("Failed to convert binary to integer!")
-
-def writetotextfile(inputtext):
-    print("Please type the path where you wish to save the text file.")
-    print("[WARNING]: Any existing file with the same name WILL BE OVERWRITTEN.")
-    print("[TIP]: You can specifiy realtive paths from where the script is stored, but you can always put in a full path.")
-    path=input(">>> ")
-
-    try:
-        textfile = open(path, "w")
-        textfile.write(inputtext)
-        textfile.close()
-    except:
-        print("Failed to write to", path, ". Please try a different location.")
-    print("Finished writing to", path,".")
-
 def readconfig():
     if os.path.isfile(configfilename):
         print("The file exists.")
@@ -81,14 +45,6 @@ def createconfig():
     with open(configfilename, 'w') as configfile:
         config.write(configfile)
     
-def readfromtextfile(path):
-    try:
-        file=open(path,"r")
-        text=file.read()
-        return text
-    except:
-        print("Failed to open ", path,". Please check if the file exists.")
-        return ""
 def setloggingoptions():
     config = configparser.ConfigParser()
     config.readfp(open(configfilereadname))
@@ -125,15 +81,18 @@ def about():
         print("============================================")
         print(appname)
         print("Version", version)
+        print("Libraries in use:")
+        print(lbtlib.conlib.appname + " " + lbtlib.conlib.version + " " + lbtlib.conlib.release)
+        print(lbtlib.iolib.appname + " " + lbtlib.iolib.version + " " + lbtlib.iolib.release)
         print("This is release is an", release,"release.")
         print("Written by Leo Durrant on the 5/02/16.")
         print(licenseabout)
-        print("Email me at", devemail, "for suggestions and inquires.")
         print("============================================")
         print("""
         Please type the number of a function.
-            1. Developer's website
-            2. Back to main menu
+            1. Wordpress
+            2. Github
+            3. Back to main menu
         """)
         print("============================================")
         aboutmenu=input(">>> ")
@@ -143,6 +102,11 @@ def about():
             print("If it failed to do so, enter the url in your browser.")
             aboutmenu = True
         elif aboutmenu == "2":
+            webbrowser.open("http://github.com/ZanyLeonic/LeonicBinaryTool/")
+            print("Attempted to open 'http://github.com/ZanyLeonic/LeonicBinaryTool/' in your default webbrowser.")
+            print("If it failed to do so, enter the url in your browser.")
+            aboutmenu = True
+        elif aboutmenu == "3":
             aboutmenu = False
         else:
             print("Invalid selection.")
@@ -168,8 +132,8 @@ def converttext2binary():
         if ct2b == "1":
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
-            text=readfromtextfile(path)
-            convertedtext=text2binary(text)
+            text=lbtlib.iolib.readfromtextfile(path)
+            convertedtext=lbtlib.conlib.text2binary(text)
             print("Your text file has been converted into binary and now reads:")
             print(convertedtext)
             
@@ -181,7 +145,7 @@ def converttext2binary():
                 writetotextfilemenu=input(">>> ")
 
                 if writetotextfilemenu == "1":
-                    writetotextfile(convertedtext)
+                    lbtlib.iolib.writetotextfile(convertedtext)
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -196,7 +160,7 @@ def converttext2binary():
             print("Please input the text you want to converted into binary below.")
             text=input(">>> ")
             
-            convertedtext=text2binary(text)
+            convertedtext=lbtlib.conlib.text2binary(text)
             print("Your text has been converted into binary and now reads:")
             print(convertedtext)
             
@@ -208,7 +172,7 @@ def converttext2binary():
                 writetotextfilemenu=input(">>> ")
 
                 if writetotextfilemenu == "1":
-                    writetotextfile(convertedtext)
+                    lbtlib.iolib.writetotextfile(convertedtext)
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -241,8 +205,8 @@ def convertbinary2text():
         if cb2t == "1":
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
-            binary=readfromtextfile(path)
-            convertedbinary=binary2text(binary)
+            binary=lbtlib.iolib.readfromtextfile(path)
+            convertedbinary=lbtlib.conlib.binary2text(binary)
             print("Your text file has been converted into text and now reads:")
             print(convertedbinary)
             
@@ -254,7 +218,7 @@ def convertbinary2text():
                 writetotextfilemenu=input(">>> ")
 
                 if writetotextfilemenu == "1":
-                    writetotextfile(convertedtext)
+                    lbtlib.iolib.writetotextfile(convertedtext)
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -269,7 +233,7 @@ def convertbinary2text():
             print("Please input the binary you want to converted into text below.")
             binary=input(">>> ")
             
-            convertedtext=binary2text(binary)
+            convertedtext=lbtlib.conlib.binary2text(binary)
             print("Your binary has been converted into text and now reads:")
             print(convertedtext)
             
@@ -281,7 +245,7 @@ def convertbinary2text():
                 writetotextfilemenu=input(">>> ")
 
                 if writetotextfilemenu == "1":
-                    writetotextfile(convertedtext)
+                    lbtlib.iolib.writetotextfile(convertedtext)
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -314,8 +278,8 @@ def convertint2binary():
         if ci2b == "1":
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
-            integer=readfromtextfile(path)
-            convertedinteger=int2binary(integer)
+            integer=lbtlib.iolib.readfromtextfile(path)
+            convertedinteger=lbtlib.conlib.int2binary(integer)
             print("Your text file has been converted into text and now reads:")
             print(convertedinteger)
             
@@ -327,7 +291,7 @@ def convertint2binary():
                 writetotextfilemenu=input(">>> ")
 
                 if writetotextfilemenu == "1":
-                    writetotextfile(convertedinteger)
+                    lbtlib.iolib.writetotextfile(convertedinteger)
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -342,7 +306,7 @@ def convertint2binary():
             print("Please input the integer you want to converted into binary below.")
             integer=input(">>> ")
             
-            convertedinteger=int2binary(integer)
+            convertedinteger=lbtlib.conlib.int2binary(integer)
             print("Your integer has been converted into binary and now reads:")
             print(convertedinteger)
             
@@ -354,7 +318,7 @@ def convertint2binary():
                 writetotextfilemenu=input(">>> ")
 
                 if writetotextfilemenu == "1":
-                    writetotextfile(convertedinteger)
+                    lbtlib.iolib.writetotextfile(convertedinteger)
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -387,8 +351,8 @@ def convertbinary2int():
         if cbti == "1":
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
-            binary=readfromtextfile(path)
-            convertedbinary=binary2int(binary)
+            binary=lbtlib.iolib.readfromtextfile(path)
+            convertedbinary=lbtlib.conlib.binary2int(binary)
             print("The binary inside your text file has been converted into an integer and now reads:")
             print(convertedbinary)
             
@@ -400,7 +364,7 @@ def convertbinary2int():
                 writetotextfilemenu=input(">>> ")
 
                 if writetotextfilemenu == "1":
-                    writetotextfile(convertedbinary)
+                    lbtlib.iolib.writetotextfile(convertedbinary)
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -415,7 +379,7 @@ def convertbinary2int():
             print("Please input the binary you want to converted into an integer below.")
             binary=input(">>> ")
             
-            convertedbinary=binary2int(binary)
+            convertedbinary=lbtlib.conlib.binary2int(binary)
             print("Your binary has been converted into an integer and now reads:")
             print(convertedbinary)
             
@@ -427,7 +391,7 @@ def convertbinary2int():
                 writetotextfilemenu=input(">>> ")
 
                 if writetotextfilemenu == "1":
-                    writetotextfile(convertedbinary)
+                    lbtlib.iolib.writetotextfile(convertedbinary)
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":

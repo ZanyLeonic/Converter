@@ -48,3 +48,9 @@ Temporary Items
 
 #Log files
 *.log
+
+#Test scripts
+test.py
+
+#Compiled Python scripts
+*.pyc
