@@ -30,50 +30,69 @@ licenseabout="""
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     """
+print(licenseabout)
+loggingenabled=1
+checkforupdatesonstartup=1
 
-def readconfig():
-    if os.path.isfile(configfilename):
-        print("The file exists.")
-    else:
-        #print("The file doesn't exist")
+def readvaluefromconfig(section, valuename):
+    try:
+        config = configparser.ConfigParser()
+        config.read(configfilereadname)
+        try:
+            val = config[section][valuename]
+        except Exception:
+            logging.error("Cannot find value " + valuename + " in " + section + ". Check " + configfilereadname + ".")
+            print("Cannot find value " + valuename + " in " + section + ". Check " + configfilereadname + ".")
+    except Exception:
+        logging.error("Cannot read " + configfilereadname + ". Permission error or does the file not exist?")
+        print("Error reading config. Check the log.")
+
+def loadconfig():
+    try:
+        config = configparser.ConfigParser()
+        config.read(configfilereadname)
+        try:
+            loggingenabled = config['general']['createlog']
+            checkforupdatesonstartup = config['updater']['checkforupdatesonstartup']
+        except Exception:
+            loggingenabled = 1
+            checkforupdatesonstartup = 1
+            logging.error("Cannot find option value(s) in config.ini. Either the file doesn't exist or the value(s) are missing.")
+            print("Config comprimised! Attempting to recreate...")
+            createconfig()
+    #except OSError(FileNotFoundError):
+    #    print("Couldn't find config file. Creating...")
+    #    createconfig()
+    except Exception:
+        print("Unknown exception. Trying to create config...")
         createconfig()
 
 def createconfig():
     config = configparser.ConfigParser()
     config['general'] = {'createlog': '1'}
     config['updater'] = {'checkforupdatesonstartup': '1'}
-    with open(configfilename, 'w') as configfile:
-        config.write(configfile)
+    try:
+        with open(configfilename, 'w') as configfile:
+            config.write(configfile)
+    #except OSError(PermissionError):
+    #    logging.error("Permission error while writing the config. Using default settings.")
+    #    print("Permission error while writing the config. Using default settings.")
+    except Exception:
+        logging.error("Unhandled error occurred while writing the config. Using default settings.")
+        print("Unhandled error occurred while writing the config. Using default settings.")
     
 def setloggingoptions():
-    config = configparser.ConfigParser()
-    config.readfp(open(configfilereadname))
-    createlograw = config.get('general', 'createlog')
-    createlog = int(createlograw)
-    if createlog == 1:
         logfilename = 'log.log'
         handler = logging.FileHandler(logfilename)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
-        if "-debuglogging" in sys.argv:
-            logging.basicConfig(level=logging.DEBUG)
+        if loggingenabled == 0:
+            logging.basicConfig()
         else:
             logging.basicConfig(filename=logfilename, level=logging.DEBUG)
         logger = logging.getLogger("[LBT]")
         logger.addHandler(handler)
         logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
-    elif createlog == 0:
-        null = ""
-    else:
-        null = ""
-def delay_print(s):
-    if("noanimtext" in sys.argv):
-        print(s)
-    else:
-        for c in s:
-            sys.stdout.write( '%s' % c )
-            sys.stdout.flush()
-            time.sleep(0.05)
 
 def about():
     aboutmenu = True
@@ -430,18 +449,22 @@ def settings():
                 print("Settings>General")
                 print("============================================")
                 print("""
-                Please type the number of a settings category.
-                1. General
-                2. Updater
-                3. Back to main menu
+                Please type the number of a setting to toggle or set.
+                1. Logging
+                2. Back to main menu
                 """)
                 print("============================================")
                 sets = input(">>> ")
+                if sets == "1":
+                    loggingset = True
+                    while loggingset:
+                        print
     
 mainmenusel = True
 while mainmenusel:
-    readconfig()
+    loadconfig()
     setloggingoptions()
+    logging.info("test")
     print("============================================")
     print("Welcome to", appname,"!")
     print("Version", version)
@@ -471,7 +494,7 @@ while mainmenusel:
         convertbinary2int()
         mainmenusel = True
     elif mainmenusel == "5":
-        print("TODO: Add function.")
+        settings()
         mainmenusel = True
     elif mainmenusel == "6":
         about()
