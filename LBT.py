@@ -33,6 +33,8 @@ licenseabout="""
 print(licenseabout)
 loggingenabled=1
 checkforupdatesonstartup=1
+logger = logging.getLogger("[LBT]")
+menu="null"
 
 def readvaluefromconfig(section, valuename):
     try:
@@ -40,24 +42,30 @@ def readvaluefromconfig(section, valuename):
         config.read(configfilereadname)
         try:
             val = config[section][valuename]
+            return val
         except Exception:
-            logging.error("Cannot find value " + valuename + " in " + section + ". Check " + configfilereadname + ".")
+            logger.error("Cannot find value " + valuename + " in " + section + ". Check " + configfilereadname + ".")
             print("Cannot find value " + valuename + " in " + section + ". Check " + configfilereadname + ".")
+            return "null"
     except Exception:
-        logging.error("Cannot read " + configfilereadname + ". Permission error or does the file not exist?")
+        logger.error("Cannot read " + configfilereadname + ". Permission error or does the file not exist?")
         print("Error reading config. Check the log.")
+        return "null"
 
 def loadconfig():
     try:
         config = configparser.ConfigParser()
         config.read(configfilereadname)
         try:
-            loggingenabled = config['general']['createlog']
+            loggingenabled = readvaluefromconfig('general', 'createlog')
+            if loggingenabled == "null":
+                logging.info
+                loggingenabled = 1
             checkforupdatesonstartup = config['updater']['checkforupdatesonstartup']
         except Exception:
             loggingenabled = 1
             checkforupdatesonstartup = 1
-            logging.error("Cannot find option value(s) in config.ini. Either the file doesn't exist or the value(s) are missing.")
+            logger.error("Cannot find option value(s) in config.ini. Either the file doesn't exist or the value(s) are missing.")
             print("Config comprimised! Attempting to recreate...")
             createconfig()
     #except OSError(FileNotFoundError):
@@ -78,7 +86,7 @@ def createconfig():
     #    logging.error("Permission error while writing the config. Using default settings.")
     #    print("Permission error while writing the config. Using default settings.")
     except Exception:
-        logging.error("Unhandled error occurred while writing the config. Using default settings.")
+        logger.error("Unhandled error occurred while writing the config. Using default settings.")
         print("Unhandled error occurred while writing the config. Using default settings.")
     
 def setloggingoptions():
@@ -90,10 +98,11 @@ def setloggingoptions():
             logging.basicConfig()
         else:
             logging.basicConfig(filename=logfilename, level=logging.DEBUG)
-        logger = logging.getLogger("[LBT]")
         logger.addHandler(handler)
         logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
 
+
+logger.info("hi")
 def about():
     aboutmenu = True
     while aboutmenu:
@@ -135,7 +144,7 @@ def converttext2binary():
     ct2b = True
     while ct2b:
         print("============================================")
-        print("Welcome to", appname,"!")
+        print("Welcome to", appname+"!")
         print("Version", version)
         print("Mode: Text to binary")
         print("============================================")
@@ -208,7 +217,7 @@ def convertbinary2text():
     cb2t = True
     while cb2t:
         print("============================================")
-        print("Welcome to", appname,"!")
+        print("Welcome to", appname+"!")
         print("Version", version)
         print("Mode: Binary to text")
         print("============================================")
@@ -281,7 +290,7 @@ def convertint2binary():
     ci2b = True
     while ci2b:
         print("============================================")
-        print("Welcome to", appname,"!")
+        print("Welcome to", appname+"!")
         print("Version", version)
         print("Mode: Integer to binary")
         print("============================================")
@@ -354,7 +363,7 @@ def convertbinary2int():
     cbti = True
     while cbti:
         print("============================================")
-        print("Welcome to", appname,"!")
+        print("Welcome to", appname+"!")
         print("Version", version)
         print("Mode: Binary to integer")
         print("============================================")
@@ -427,7 +436,7 @@ def settings():
     catsets = True
     while catsets:
         print("============================================")
-        print("Welcome to", appname,"!")
+        print("Welcome to", appname+"!")
         print("Version", version)
         print("Settings")
         print("============================================")
@@ -444,7 +453,7 @@ def settings():
             sets = True
             while sets:
                 print("============================================")
-                print("Welcome to", appname,"!")
+                print("Welcome to", appname + "!")
                 print("Version", version)
                 print("Settings>General")
                 print("============================================")
@@ -458,15 +467,29 @@ def settings():
                 if sets == "1":
                     loggingset = True
                     while loggingset:
-                        print
-    
+                        print("============================================")
+                        print("Welcome to", appname + "!")
+                        print("Version", version)
+                        print("Settings>General")
+                        print("============================================")
+                        print("""
+                        Please type the number of a setting to toggle or set.
+                        1. Yes
+                        2. No
+                        3. Back to previous menu
+                        """)
+
+                        
+setloggingoptions()
+loadconfig()
+logger.info(appname + " loaded!")
+logger.info("Version: " + version + " " + release)
+menu="main"
 mainmenusel = True
 while mainmenusel:
-    loadconfig()
-    setloggingoptions()
-    logging.info("test")
+
     print("============================================")
-    print("Welcome to", appname,"!")
+    print("Welcome to", appname+"!")
     print("Version", version)
     print("============================================")
     print("""
@@ -482,25 +505,33 @@ while mainmenusel:
     print("============================================")
     mainmenusel = input(">>> ")
     if mainmenusel == "1":
+        logger.info("Chose option 1 on menu " + menu)
         converttext2binary()
         mainmenusel = True
     elif mainmenusel == "2":
+        logger.info("Chose option 2 on menu " + menu)
         convertbinary2text()
         mainmenusel = True
     elif mainmenusel == "3":
+        logger.info("Chose option 3 on menu " + menu)
         convertint2binary()
         mainmenusel = True
     elif mainmenusel == "4":
+        logger.info("Chose option 4 on menu " + menu)
         convertbinary2int()
         mainmenusel = True
     elif mainmenusel == "5":
+        logger.info("Chose option 5 on menu " + menu)
         settings()
         mainmenusel = True
     elif mainmenusel == "6":
+        logger.info("Chose option 6 on menu " + menu)
         about()
         mainmenusel = True
     elif mainmenusel == "7":
+        logger.info("Chose option 7 on menu " + menu)
         print("See ya!")
+        logger.info("Exitting...")
         mainmenusel = False
     elif mainmenusel != "":
         print("Invalid selection.")
