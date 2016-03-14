@@ -20,12 +20,20 @@ licenseabout="""
     """
 
 def text2binary(inputtext):
-    bits = bin(int.from_bytes(inputtext.encode(encoding='utf-8', errors='surrogatepass'), 'big'))[2:]
-    return bits.zfill(8 * ((len(bits) + 7) // 8))
+    try:
+        bits = bin(int.from_bytes(inputtext.encode(encoding='utf-8', errors='surrogatepass'), 'big'))[2:]
+        return bits.zfill(8 * ((len(bits) + 7) // 8))
+    except:
+        print("Failed to convert the text to binary.")
+        return 1
 
 def binary2text(inputbin):
-    n = int(inputbin, 2)
-    return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding='utf-8', errors='surrogatepass') or '\0'
+    try:
+        n = int(inputbin, 2)
+        return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding='utf-8', errors='surrogatepass') or '\0'
+    except:
+        print("Failed to convert the binary to text.")
+        return 1
 
 def int2binary(inputint):
     try:
@@ -34,6 +42,7 @@ def int2binary(inputint):
         return output
     except:
         print("Failed to parse the input as a integer. Please make sure your number is a whole number and doesn't have anything else, except numbers.")
+        return 1
 
 def binary2int(inputbin):
     try:
@@ -41,6 +50,7 @@ def binary2int(inputbin):
         return integer
     except:
         print("Failed to convert binary to integer!")
+        return 1
 
 if __name__ == "__main__":
     print(appname)
