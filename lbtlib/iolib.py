@@ -19,18 +19,16 @@ licenseabout="""
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     """
 
-def writetotextfile(inputtext):
-    print("Please type the path where you wish to save the text file.")
-    print("[WARNING]: Any existing file with the same name WILL BE OVERWRITTEN.")
-    print("[TIP]: You can specifiy realtive paths from where the script is stored, but you can always put in a full path.")
-    path=input(">>> ")
-
+def writetotextfile(inputtext, paths):
+    path=paths
     try:
         textfile = open(path, "w")
         textfile.write(inputtext)
         textfile.close()
+        return 0
     except:
         print("Failed to write to", path, ". Please try a different location.")
+        return 1
     print("Finished writing to", path,".")
 
 def readfromtextfile(path):
@@ -40,7 +38,7 @@ def readfromtextfile(path):
         return text
     except:
         print("Failed to open ", path,". Please check if the file exists.")
-        return ""
+        return 1
 
 if __name__ == "__main__":
     print(appname)
