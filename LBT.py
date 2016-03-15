@@ -6,8 +6,12 @@ import sys
 import webbrowser
 import configparser
 import logging
-import lbtlib
-
+try:
+    import lbtlib
+except Exception:
+    print("Unable to load lbtlib. Please redownload this program or download lbtlib from http://github.com/ZanyLeonic/LeonicBinaryTool")
+    sys.exit(1)
+                 
 appname="Leonic Binary Tool"
 version="0.1a"
 release="alpha"
@@ -54,8 +58,9 @@ def readvaluefromconfig(section, valuename):
 
 def setvalueinconfig(section, key, value):
     config = configparser.ConfigParser()
-    config[section] = {key : value}
     try:
+        config.read(configfilereadname)
+        config.set(section, key, value)
         with open(configfilename, 'w') as configfile:
             config.write(configfile)
     except Exception:
@@ -78,9 +83,6 @@ def loadconfig():
             logger.error("Cannot find option value(s) in config.ini. Either the file doesn't exist or the value(s) are missing.")
             print("Config comprimised! Attempting to recreate...")
             createconfig()
-    #except OSError(FileNotFoundError):
-    #    print("Couldn't find config file. Creating...")
-    #    createconfig()
     except Exception:
         print("Unknown exception. Trying to create config...")
         createconfig()
@@ -92,9 +94,6 @@ def createconfig():
     try:
         with open(configfilename, 'w') as configfile:
             config.write(configfile)
-    #except OSError(PermissionError):
-    #    logging.error("Permission error while writing the config. Using default settings.")
-    #    print("Permission error while writing the config. Using default settings.")
     except Exception:
         logger.error("Unhandled error occurred while writing the config. Using default settings.")
         print("Unhandled error occurred while writing the config. Using default settings.")
@@ -493,8 +492,8 @@ def settings():
         catsets = input(">>> ")
         
         if catsets == "1":
-            sets = True
-            while sets:
+            sets1 = True
+            while sets1:
                 print("============================================")
                 print("Welcome to", appname + "!")
                 print("Version", version)
@@ -506,14 +505,43 @@ def settings():
                 2. Back to main menu
                 """)
                 print("============================================")
-                sets = input(">>> ")
-                if sets == "1":
+                sets1 = input(">>> ")
+                if sets1 == "1":
                     currentlogval=readvaluefromconfig("general", "createlog")
-                    if currentlogval==1:
+                    if currentlogval=="1":
                         setvalueinconfig("general", "createlog", "0")
-                    elif currentlogval==0:
+                    elif currentlogval=="0":
                         setvalueinconfig("general", "createlog", "1")
-                        
+                elif sets1 == "2":
+                    sets1 = False
+
+        if catsets == "2":
+            sets2 = True
+            while sets2:
+                print("============================================")
+                print("Welcome to", appname + "!")
+                print("Version", version)
+                print("Settings>Updater")
+                print("============================================")
+                print("""
+                Please type the number of a setting to toggle or set.
+                1. Check for updates on startup """+ "(Current value: "+readvaluefromconfig("updater", "checkforupdatesonstartup")+")"+"""
+                2. Back to main menu
+                """)
+                print("============================================")
+                sets2 = input(">>> ")
+                if sets2 == "1":
+                    currentupostartval=readvaluefromconfig("updater", "checkforupdatesonstartup")
+                    if currentupostartval=="1":
+                        setvalueinconfig("updater", "checkforupdatesonstartup", "0")
+                    elif currentupostartval=="0":
+                        setvalueinconfig("updater", "checkforupdatesonstartup", "1")
+                elif sets2 == "2":
+                    sets2 = False
+
+        if catsets == "3":
+            catsets = False
+
 def pathnotice():
     print("Please type the path where you wish to save the text file.")
     print("[WARNING]: Any existing file with the same name WILL BE OVERWRITTEN.")
@@ -570,7 +598,7 @@ while mainmenusel:
     elif mainmenusel == "7":
         logger.info("Chose option 7 on menu " + menu)
         print("See ya!")
-        logger.info("Exitting...")
+        logger.info("Exiting...")
         mainmenusel = False
     elif mainmenusel != "":
         print("Invalid selection.")
