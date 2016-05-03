@@ -35,24 +35,6 @@ licenseabout="""
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     """
 print(licenseabout)
-if os.path.isfile(os.getcwd() + "\\eula.txt"):
-        eulares=lbtlib.etclib.checkeula(os.getcwd())
-        if eula == "true":
-            null="null"
-        else:
-            agree=input("Do you agree the terms above? Y/N ")
-            if agree == "Y":
-                lbtlib.etclib.seteula("1", os.getcwd())
-            elif agree == "y":
-                lbtlib.etclib.seteula("1", os.getcwd())
-            elif agree == "N":
-                lbtlib.etclib.seteula("0", os.getcwd())
-                sys.exit(1)
-            elif agree == "n":
-                lbtlib.etclib.seteula("0", os.getcwd())
-                sys.exit(1)
-else:
-    lbtlib.etclib.createeula(os.getcwd())
 
 loggingenabled=1
 checkforupdatesonstartup=1
