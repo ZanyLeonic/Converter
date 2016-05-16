@@ -44,7 +44,7 @@ def readfromtextfile(path):
         # print("Failed to open %s. Please check if the file exists." % (path))
         return 3
 
-def readonlinefile(url):
+def downloadfile(url, path):
     try:
         errorcode=1
         response = urllib.request.urlopen(url)
@@ -53,8 +53,6 @@ def readonlinefile(url):
         errorcode=3
         text = data.decode('utf-8')
         errorcode=0
-        text = str(text)
-        return text
     except:
         return errorcode
 
@@ -66,7 +64,7 @@ if __name__ == "__main__":
     Available functions:
         writetotextfile(inputtext) - Writes inputtext to were the user specifies.
         readfromtextfile(path)     - Reads from the file specified in path.
-        readonlinefile(url)        - Attempts to read the file specified in the URL returns text. If it fails, returns errorcode.
+        downloadfile(url, path)    - Attempts to download file using url and saving it using path. Returns errorcode.
     For further releases and information check out the links below.""")
     print("""
     Wordpress: http://leonicweb.wordpress.com/

@@ -1,4 +1,6 @@
-appname="Leonic Conversion module"
+appname="LBT Conversion module"
+author="Leo Durrant (2016)"
+buliddate="03/05/16"
 version="0.1a"
 release="alpha"
 licenseabout="""
@@ -24,7 +26,7 @@ def text2binary(inputtext):
         bits = bin(int.from_bytes(inputtext.encode(encoding='utf-8', errors='surrogatepass'), 'big'))[2:]
         return bits.zfill(8 * ((len(bits) + 7) // 8))
     except:
-        print("Failed to convert the text to binary.")
+        print("Failed to convert the text (%s) to binary." % (inputtext))
         return 1
 
 def binary2text(inputbin):
@@ -32,7 +34,7 @@ def binary2text(inputbin):
         n = int(inputbin, 2)
         return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding='utf-8', errors='surrogatepass') or '\0'
     except:
-        print("Failed to convert the binary to text.")
+        print("Failed to convert the binary (%s) to text." % (inputbin))
         return 1
 
 def int2binary(inputint):
@@ -41,7 +43,7 @@ def int2binary(inputint):
         output = '{0:08b}'.format(num)
         return output
     except:
-        print("Failed to parse the input as a integer. Please make sure your number is a whole number and doesn't have anything else, except numbers.")
+        print("Failed to parse the input as a integer (%s). Please make sure your number is a whole number and doesn't have anything else, except numbers." % (inputint))
         return 1
 
 def binary2int(inputbin):
@@ -49,12 +51,12 @@ def binary2int(inputbin):
         integer = int(inputbin, 2)
         return integer
     except:
-        print("Failed to convert binary to integer!")
+        print("Failed to convert binary (%s) to integer!" % (inputbin))
         return 1
 
 if __name__ == "__main__":
-    print(appname)
-    print("Version: " + version + " " + release)
+    print("%s by %s." % (appname, author))
+    print("Version: %s %s built on %s" % (version, release, buliddate))
     print(licenseabout)
     print("""
     Available functions:
