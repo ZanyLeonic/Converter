@@ -2,13 +2,8 @@
 import time
 import os
 import sys
-try:
-    import lbtlib
-except Exception:
-    print("Unable to load lbtlib. Please redownload this program or download lbtlib from http://github.com/ZanyLeonic/LeonicBinaryTool")
-    sys.exit(1)
-    
-version="0.1a"
+import lbtlib
+
 licenseabout="""
     Leonic Binary Tool
     Copyright (C) 2016 Leo Durrant
@@ -23,28 +18,6 @@ licenseabout="""
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     """
-def checkforupdates_test():
-    onlineversioninfourl="http://zanyleonic.github.io/LeonicBinaryTool/version.ver"
-    latestversionurl="http://zanyleonic.github.io/LeonicBinaryTool/latest.url"
-    print("Checking for updates...")
-    status=0
-    try:
-        onlineversion=lbtlib.iolib.readonlinefile(onlineversioninfourl)
-        downloadurl=lbtlib.iolib.readonlinefile(latestversionurl)
-    except:
-        status=1
-        print("Failed to check for updates. github.io is blocked or no internet connection?")
-        sys.exit(1)
-    if status == 0:
-        print("Comparing onlineversion(%s) to local version(%s)." % (onlineversion, version))
-        if not onlineversion==version:
-            print("Version %s is avaiable for download. Would you like to get it now?" % (onlineversion))
-            print("Test suceeded.")
-        elif onlineversion==version:
-            print("LBT is up to date!")
-            print("LBT is up to date. Version (%s)" % (version))
-            print("Test suceeded.")
-
 t2btest="hello"
 i2btest=255
 wttftest="""
@@ -122,8 +95,6 @@ if rftf == 1:
     print("Please check iolib and check the code.")
 print ("readfromtextfile() returned " + str(rftf))
 os.remove(wttfname)
-print("Testing readonlinetextfile()...")
-checkforupdates_test()
 print("Testing finished on iolib. All tests succeded.")
 print("Finished testing lbtlib.")
 print("Finished testing at " + time.strftime("%H:%M:%S") + " on " + time.strftime("%d/%m/%Y") + ".")

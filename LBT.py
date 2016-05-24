@@ -41,7 +41,7 @@ loggingenabled=1
 checkforupdatesonstartup=1
 onlineversioninfourl="http://zanyleonic.github.io/LeonicBinaryTool/version.ver"
 latestversionurl="http://zanyleonic.github.io/LeonicBinaryTool/latest.url"
-logger = logging.getLogger("[LBT]")
+logger=logging.getLogger("[LBT]")
 menu="null"
 menudisplayname="null"
 
@@ -159,10 +159,10 @@ def about():
     while aboutmenu:
         print("============================================")
         print(appname)
-        print("Version", version)
+        print("Version %s" % (version))
         print("Libraries in use:")
         print("%s %s %s by %s. Built on %s." % (lbtlib.conlib.appname, lbtlib.conlib.version, lbtlib.conlib.release, lbtlib.conlib.author, lbtlib.conlib.buliddate))
-        print("%s %s %s" % (lbtlib.iolib.appname, lbtlib.iolib.version, lbtlib.iolib.release, lbtlib.iolib.release, lbtlib.iolib.author, lbtlib.iolib.buliddate))
+        print("%s %s %s by %s. Built on %s." % (lbtlib.iolib.appname, lbtlib.iolib.version, lbtlib.iolib.release, lbtlib.iolib.author, lbtlib.iolib.buliddate))
         print("This release is an %s release." % (release))
         print("Written by %s on the %s." % (author, buliddate))
         print(licenseabout)
