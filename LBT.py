@@ -52,6 +52,13 @@ def menutitle(menudisplayname):
         print("Mode: %s" % (menudisplayname))
         print("============================================")
 
+try:
+    config = configparser.ConfigParser()
+    config.read(configfilereadname)
+except Exception:
+        logger.error("Cannot read %s. Permission error or does the file not exist?" % (configfilereadname))
+        print("Error reading config. Check the log.")
+
 def readvaluefromconfig(section, valuename):
     try:
         config = configparser.ConfigParser()
@@ -121,8 +128,10 @@ def setloggingoptions():
             logging.basicConfig(filename=logfilename, level=logging.DEBUG)
         logger.addHandler(handler)
         logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
+        logger.info("")
 
 def checkforupdates():
+    menu="update"
     print("Checking for updates...")
     status=0
     try:
@@ -136,19 +145,22 @@ def checkforupdates():
     if status == 0:
         logger.info("Comparing onlineversion(%s) to local version(%s)." % (onlineversion, version))
         if not onlineversion==version:
-            print("Version %s is avaiable for download. Would you like to get it now?" % (onlineversion))
+            print("Version %s is avaiable for download. Would you like to get it now? (Y/N)" % (onlineversion))
             logger.info("Version %s is avaiable." % (onlineversion))
             update=True
             while update==True:
                 update=input(">>> ")
                 if update=="Y" or update=="y":
+                    logger.info("Chose option (%s) on menu (%s)" % (update, menu))
                     print("Opening in default webbrowser...")
                     webbrowser.open(downloadurl)
                     update=False
                 elif update=="N" or update=="n":
+                    logger.info("Chose option (%s) on menu (%s)" % (update, menu))
                     print("")
                     update=False
                 else:
+                    logger.info("Chose option (%s) on menu (%s)" % (update, menu))
                     print("Invalid option.")
                     update=True
         elif onlineversion==version:
@@ -157,6 +169,7 @@ def checkforupdates():
 def about():
     aboutmenu = True
     while aboutmenu:
+        menu="about"
         print("============================================")
         print(appname)
         print("Version %s" % (version))
@@ -171,23 +184,32 @@ def about():
         Please type the number of a function.
             1. Wordpress
             2. Github
-            3. Back to main menu
+            3. Check for updates
+            4. Back to main menu
         """)
         print("============================================")
         aboutmenu=input(">>> ")
         if aboutmenu == "1":
+            logger.info("Chose option (%s) on menu (%s)" % (aboutmenu, menu))
             webbrowser.open("http://leonicweb.wordpress.com/")
             print("Attempted to open 'http://leonicweb.wordpress.com/' in your default webbrowser.")
             print("If it failed to do so, enter the url into your browser.")
             aboutmenu = True
         elif aboutmenu == "2":
+            logger.info("Chose option (%s) on menu (%s)" % (aboutmenu, menu))
             webbrowser.open("http://github.com/ZanyLeonic/LeonicBinaryTool/")
             print("Attempted to open 'http://github.com/ZanyLeonic/LeonicBinaryTool/' in your default webbrowser.")
             print("If it failed to do so, enter the url into your browser.")
             aboutmenu = True
         elif aboutmenu == "3":
+            logger.info("Chose option (%s) on menu (%s)" % (aboutmenu, menu))
+            checkforupdates()
+            aboutmenu = True
+        elif aboutmenu == "4":
+            logger.info("Chose option (%s) on menu (%s)" % (aboutmenu, menu))
             aboutmenu = False
         else:
+            logger.info("Chose option (%s) on menu (%s)" % (aboutmenu, menu))
             print("Invalid selection.")
             mainmenusel = True
 
@@ -207,6 +229,7 @@ def converttext2binary():
         ct2b = input(">>> ")
         
         if ct2b == "1":
+            logger.info("Chose option (%s) on menu (%s)" % (ct2b, menu))
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
             text=lbtlib.iolib.readfromtextfile(path)
@@ -241,6 +264,7 @@ def converttext2binary():
                     
             ct2b=True
         elif ct2b == "2":
+            logger.info("Chose option (%s) on menu (%s)" % (ct2b, menu))
             print("Please input the text you want to converted into binary below.")
             text=input(">>> ")
             
@@ -269,7 +293,13 @@ def converttext2binary():
                     writetotextfilemenu=True
             
         elif ct2b == "3":
+            logger.info("Chose option (%s) on menu (%s)" % (ct2b, menu))
             ct2b = False
+
+        else:
+            logger.info("Chose option (%s) on menu (%s)" % (ct2b, menu))
+            print("Invalid option.")
+            ct2b=True
 
 def convertbinary2text():
     cb2t = True
@@ -287,6 +317,7 @@ def convertbinary2text():
         cb2t = input(">>> ")
         
         if cb2t == "1":
+            logger.info("Chose option (%s) on menu (%s)" % (cb2t, menu))
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
             binary=lbtlib.iolib.readfromtextfile(path)
@@ -321,6 +352,7 @@ def convertbinary2text():
                     
             cb2t=True
         elif cb2t == "2":
+            logger.info("Chose option (%s) on menu (%s)" % (cb2t, menu))
             print("Please input the binary you want to converted into text below.")
             binary=input(">>> ")
             
@@ -349,8 +381,13 @@ def convertbinary2text():
                     writetotextfilemenu=True
             
         elif cb2t == "3":
+            logger.info("Chose option (%s) on menu (%s)" % (cb2t, menu))
             cb2t = False
 
+        else:
+            logger.info("Chose option (%s) on menu (%s)" % (cb2t, menu))
+            print("Invalid option.")
+            cb2t=True
 def convertint2binary():
     ci2b = True
     while ci2b:
@@ -367,6 +404,7 @@ def convertint2binary():
         ci2b = input(">>> ")
         
         if ci2b == "1":
+            logger.info("Chose option (%s) on menu (%s)" % (ci2b, menu))
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
             integer=lbtlib.iolib.readfromtextfile(path)
@@ -401,6 +439,7 @@ def convertint2binary():
                     
             ci2b=True
         elif ci2b == "2":
+            logger.info("Chose option (%s) on menu (%s)" % (ci2b, menu))
             print("Please input the integer you want to converted into binary below.")
             integer=input(">>> ")
             
@@ -429,8 +468,13 @@ def convertint2binary():
                     writetotextfilemenu=True
             
         elif ci2b == "3":
+            logger.info("Chose option (%s) on menu (%s)" % (ci2b, menu))
             ci2b = False
 
+        else:
+            logger.info("Chose option (%s) on menu (%s)" % (ci2b, menu))
+            print("Invalid option.")
+            ci2b=True
 def convertbinary2int():
     cbti = True
     while cbti:
@@ -447,6 +491,7 @@ def convertbinary2int():
         cbti = input(">>> ")
         
         if cbti == "1":
+            logger.info("Chose option (%s) on menu (%s)" % (cbti, menu))
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
             binary=lbtlib.iolib.readfromtextfile(path)
@@ -480,6 +525,7 @@ def convertbinary2int():
                     
             cbti=True
         elif cbti == "2":
+            logger.info("Chose option (%s) on menu (%s)" % (cbti, menu))
             print("Please input the binary you want to converted into an integer below.")
             binary=input(">>> ")
             
@@ -508,11 +554,18 @@ def convertbinary2int():
                     writetotextfilemenu=True
             
         elif cbti == "3":
+            logger.info("Chose option (%s) on menu (%s)" % (cbti, menu))
             cbti = False
 
+        else:
+            logger.info("Chose option (%s) on menu (%s)" % (cbti, menu))
+            print("Invalid option.")
+            cbti=True
+            
 def settings():
     catsets = True
     while catsets:
+        menu="settings"
         print("============================================")
         print("Welcome to %s!" %(appname))
         print("Version %s" %(version))
@@ -528,12 +581,14 @@ def settings():
         catsets = input(">>> ")
         
         if catsets == "1":
+            logger.info("Chose option (%s) on menu (%s)" % (catsets, menu))
             sets1 = True
             while sets1:
+                menu="settings>general"
                 createlogcurval=readvaluefromconfig("general", "createlog")
                 print("============================================")
-                print("Welcome to", appname + "!")
-                print("Version", version)
+                print("Welcome to %s!" %(appname))
+                print("Version %s" % (version))
                 print("Settings>General")
                 print("============================================")
                 print("""
@@ -544,21 +599,25 @@ def settings():
                 print("============================================")
                 sets1 = input(">>> ")
                 if sets1 == "1":
+                    logger.info("Chose option (%s) on menu (%s)" % (sets1, menu))
                     currentlogval=readvaluefromconfig("general", "createlog")
                     if currentlogval=="1":
                         setvalueinconfig("general", "createlog", "0")
                     elif currentlogval=="0":
                         setvalueinconfig("general", "createlog", "1")
                 elif sets1 == "2":
+                    logger.info("Chose option (%s) on menu (%s)" % (sets1, menu))
                     sets1 = False
 
-        if catsets == "2":
+        elif catsets == "2":
+            logger.info("Chose option (%s) on menu (%s)" % (catsets, menu))
             sets2 = True
             while sets2:
+                menu="settings>updater"
                 updatercurval=readvaluefromconfig("updater", "checkforupdatesonstartup")
                 print("============================================")
-                print("Welcome to", appname + "!")
-                print("Version", version)
+                print("Welcome to %s!" % (appname))
+                print("Version %s" % (version))
                 print("Settings>Updater")
                 print("============================================")
                 print("""
@@ -569,16 +628,24 @@ def settings():
                 print("============================================")
                 sets2 = input(">>> ")
                 if sets2 == "1":
+                    logger.info("Chose option (%s) on menu (%s)" % (sets2, menu))
                     currentupostartval=readvaluefromconfig("updater", "checkforupdatesonstartup")
                     if currentupostartval=="1":
                         setvalueinconfig("updater", "checkforupdatesonstartup", "0")
                     elif currentupostartval=="0":
                         setvalueinconfig("updater", "checkforupdatesonstartup", "1")
                 elif sets2 == "2":
+                    logger.info("Chose option (%s) on menu (%s)" % (sets2, menu))
                     sets2 = False
 
-        if catsets == "3":
+        elif catsets == "3":
+            logger.info("Chose option (%s) on menu (%s)" % (catsets, menu))
             catsets = False
+
+        else:
+            logger.info("Chose option (%s) on menu (%s)" % (catsets, menu))
+            print("Invalid option.")
+            catsets=True
 
 def pathnotice():
     print("Please type the path where you wish to save the text file.")
@@ -587,16 +654,24 @@ def pathnotice():
                         
 setloggingoptions()
 loadconfig()
-logger.info(appname + " loaded!")
-logger.info("Version: " + version + " " + release)
-checkforupdates()
+
+logger.info("%s loaded!" % (appname))
+logger.info("Version: %s %s" % (version,release))
+
+cfuos=config.getint("updater", "checkforupdatesonstartup")
+logger.info("checkforupdatesonstartup = %s" % (cfuos))
+if cfuos == 1:
+    checkforupdates()
+else:
+    print("Checking for updates on startup disabled.")
+
 menu="main"
 mainmenusel = True
 while mainmenusel:
 
     print("============================================")
-    print("Welcome to", appname+"!")
-    print("Version", version)
+    print("Welcome to %s!" % (appname))
+    print("Version %s" % (version))
     print("============================================")
     print("""
     Please type the number of a function.
@@ -611,31 +686,31 @@ while mainmenusel:
     print("============================================")
     mainmenusel = input(">>> ")
     if mainmenusel == "1":
-        logger.info("Chose option 1 on menu " + menu)
+        logger.info("Chose option (%s) on menu (%s)" % (mainmenusel, menu))
         converttext2binary()
         mainmenusel = True
     elif mainmenusel == "2":
-        logger.info("Chose option 2 on menu " + menu)
+        logger.info("Chose option (%s) on menu (%s)" % (mainmenusel, menu))
         convertbinary2text()
         mainmenusel = True
     elif mainmenusel == "3":
-        logger.info("Chose option 3 on menu " + menu)
+        logger.info("Chose option (%s) on menu (%s)" % (mainmenusel, menu))
         convertint2binary()
         mainmenusel = True
     elif mainmenusel == "4":
-        logger.info("Chose option 4 on menu " + menu)
+        logger.info("Chose option (%s) on menu (%s)" % (mainmenusel, menu))
         convertbinary2int()
         mainmenusel = True
     elif mainmenusel == "5":
-        logger.info("Chose option 5 on menu " + menu)
+        logger.info("Chose option (%s) on menu (%s)" % (mainmenusel, menu))
         settings()
         mainmenusel = True
     elif mainmenusel == "6":
-        logger.info("Chose option 6 on menu " + menu)
+        logger.info("Chose option (%s) on menu (%s)" % (mainmenusel, menu))
         about()
         mainmenusel = True
     elif mainmenusel == "7":
-        logger.info("Chose option 7 on menu " + menu)
+        logger.info("Chose option (%s) on menu (%s)" % (mainmenusel, menu))
         print("See ya!")
         logger.info("Exiting...")
         mainmenusel = False

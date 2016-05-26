@@ -45,7 +45,6 @@ def readfromtextfile(path):
         return 3
 
 def readonlinefile(url):
-    try:
         errorcode=1
         response = urllib.request.urlopen(url)
         errorcode=2
@@ -55,8 +54,6 @@ def readonlinefile(url):
         errorcode=0
         text = str(text)
         return text
-    except:
-        return errorcode
 
 if __name__ == "__main__":
     print("%s by %s." % (appname, author))
