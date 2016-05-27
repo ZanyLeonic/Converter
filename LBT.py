@@ -657,8 +657,11 @@ loadconfig()
 
 logger.info("%s loaded!" % (appname))
 logger.info("Version: %s %s" % (version,release))
-
-cfuos=config.getint("updater", "checkforupdatesonstartup")
+try:
+    cfuos=config.getint("updater", "checkforupdatesonstartup")
+except Exception:
+    cfuos=1
+    createconfig()
 logger.info("checkforupdatesonstartup = %s" % (cfuos))
 if cfuos == 1:
     checkforupdates()
