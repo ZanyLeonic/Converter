@@ -8,3 +8,11 @@ This project is under the GNU Public License v3. Feel free to modify this progra
 * GUI mode [TODO]
 * Publish and get from Pastebin [TODO]
 * Launcher [TODO]
+* Converting and saving text files [Implemented! (Ver 0.1a)]
+* Configuration files [Implemented! (Ver 0.1a)]
+* Conversion of text to binary, binary to text, integers to binary, binary to integers. [Implemented! (Ver 0.1a)
+* Conversion of Floats? [TODO]
+
+###What do you think?
+Suggestions? Bugs? Critisms? Anything else? Don't heistate to send them my way!
+Please contact me on Github or leave them in the issues if you have any problems with this script.
