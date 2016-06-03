@@ -1,6 +1,8 @@
 # Leonic Binary Tool [![Build Status](https://travis-ci.org/ZanyLeonic/LeonicBinaryTool.svg?branch=master)](https://travis-ci.org/ZanyLeonic/LeonicBinaryTool)
 A small tool that converts integers and text to binary and back.
+
 Written in with Python 3 and with tons of cups of tea. (Tested with Python 3.4.4 and 3.5.1.)
+
 This project is under the GNU Public License v3. Feel free to modify this program to your liking.
 
 ###Implemented and planned features:
@@ -15,4 +17,5 @@ This project is under the GNU Public License v3. Feel free to modify this progra
 
 ###What do you think?
 Suggestions? Bugs? Critisms? Anything else? Don't heistate to send them my way!
+
 Please contact me on Github or leave them in the issues if you have any problems with this script.
