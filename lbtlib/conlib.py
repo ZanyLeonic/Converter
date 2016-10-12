@@ -1,7 +1,7 @@
 appname="LBT Conversion module"
 author="Leo Durrant (2016)"
-buliddate="03/05/16"
-version="0.1a"
+buliddate="12/10/16"
+version="0.2a"
 release="alpha"
 licenseabout="""
     Leonic Binary Tool 
@@ -22,37 +22,21 @@ licenseabout="""
     """
 
 def text2binary(inputtext):
-    try:
-        bits = bin(int.from_bytes(inputtext.encode(encoding='utf-8', errors='surrogatepass'), 'big'))[2:]
-        return bits.zfill(8 * ((len(bits) + 7) // 8))
-    except:
-        print("Failed to convert the text (%s) to binary." % (inputtext))
-        return 1
+    bits = bin(int.from_bytes(inputtext.encode(encoding='utf-8', errors='surrogatepass'), 'big'))[2:]
+    return bits.zfill(8 * ((len(bits) + 7) // 8))
 
 def binary2text(inputbin):
-    try:
-        n = int(inputbin, 2)
-        return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding='utf-8', errors='surrogatepass') or '\0'
-    except:
-        print("Failed to convert the binary (%s) to text." % (inputbin))
-        return 1
+    n = int(inputbin, 2)
+    return n.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding='utf-8', errors='surrogatepass') or '\0'
 
 def int2binary(inputint):
-    try:
-        num = int(inputint)
-        output = '{0:08b}'.format(num)
-        return output
-    except:
-        print("Failed to parse the input as a integer (%s). Please make sure your number is a whole number and doesn't have anything else, except numbers." % (inputint))
-        return 1
+    num = int(inputint)
+    output = '{0:08b}'.format(num)
+    return output
 
 def binary2int(inputbin):
-    try:
-        integer = int(inputbin, 2)
-        return integer
-    except:
-        print("Failed to convert binary (%s) to integer!" % (inputbin))
-        return 1
+    integer = int(inputbin, 2)
+    return integer
 
 if __name__ == "__main__":
     print("%s by %s." % (appname, author))

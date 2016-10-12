@@ -2,8 +2,8 @@ import urllib.request
 
 appname="LBT IO functions module"
 author="Leo Durrant (2016)"
-buliddate="03/05/16"
-version="0.1a"
+buliddate="12/10/16"
+version="0.2a"
 release="alpha"
 licenseabout="""
     Leonic Binary Tool 
@@ -25,24 +25,14 @@ licenseabout="""
 
 def writetotextfile(inputtext, paths):
     path=paths
-    try:
-        textfile = open(path, "w")
-        textfile.write(inputtext)
-        textfile.close()
-        return 0
-    except:
-        # print("Failed to write to %s. Please try a different location." % (path))
-        return 1
-    # print("Finished writing to %s." % (path))
-
+    textfile = open(path, "w")
+    textfile.write(inputtext)
+    textfile.close()
+        
 def readfromtextfile(path):
-    try:
-        file=open(path,"r")
-        text=file.read()
-        return text
-    except:
-        # print("Failed to open %s. Please check if the file exists." % (path))
-        return 3
+    file=open(path,"r")
+    text=file.read()
+    return text
 
 def readonlinefile(url):
         errorcode=1

@@ -14,8 +14,8 @@ except Exception:
                  
 appname="Leonic Binary Tool"
 author="Leo Durrant (2016)"
-buliddate="03/05/16"
-version="0.1a"
+buliddate="12/10/16"
+version="0.2a"
 release="alpha"
 configfilename="config.ini"
 configfilereadname=r"config.ini"
@@ -36,6 +36,7 @@ licenseabout="""
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     """
+print("Starting...")
 print(licenseabout)
 loggingenabled=1
 checkforupdatesonstartup=1
@@ -55,9 +56,9 @@ def menutitle(menudisplayname):
 try:
     config = configparser.ConfigParser()
     config.read(configfilereadname)
-except Exception:
-        logger.error("Cannot read %s. Permission error or does the file not exist?" % (configfilereadname))
-        print("Error reading config. Check the log.")
+except Exception as e:
+        logger.error("Cannot read %s.\n Exception: %s" % (configfilereadname, str(e)))
+        print("Cannot read %s.\n Exception: %s" % (configfilereadname, str(e)))
 
 def readvaluefromconfig(section, valuename):
     try:
@@ -66,13 +67,13 @@ def readvaluefromconfig(section, valuename):
         try:
             val = config[section][valuename]
             return val
-        except Exception:
-            logger.error("Cannot find value %s in %s. Check %s." % (valuename, section, configfilereadname))
-            print("Cannot find value %s in %s. Check %s." % (valuename, section, configfilereadname))
+        except Exception as e:
+            logger.error("Cannot find value %s in %s. Check %s.\n Exception: %s" % (valuename, section, configfilereadname, str(e)))
+            print("Cannot find value %s in %s. Check %s.\n Exception: %s" % (valuename, section, configfilereadname, str(e)))
             return "null"
-    except Exception:
-        logger.error("Cannot read %s. Permission error or does the file not exist?" % (configfilereadname))
-        print("Error reading config. Check the log.")
+    except Exception as e:
+        logger.error("Cannot read %s.\n Exception: %s" % (configfilereadname, str(e)))
+        print("Cannot read %s.\n Exception: %s" % (configfilereadname, str(e)))
         return "null"
 
 def setvalueinconfig(section, key, value):
@@ -82,9 +83,9 @@ def setvalueinconfig(section, key, value):
         config.set(section, key, value)
         with open(configfilename, 'w') as configfile:
             config.write(configfile)
-    except Exception:
-        logger.error("Unhandled error occurred while writing the config. Using default settings.")
-        print("Unhandled error occurred while writing the config. Using default settings.")
+    except Exception as e:
+        logger.error("Unhandled error occurred while writing the config. Using default settings.\n Exception: %s" % (str(e)))
+        print("Unhandled error occurred while writing the config. Using default settings.\n Exception: %s" % (str(e)))
             
 def loadconfig():
     try:
@@ -96,14 +97,14 @@ def loadconfig():
                 logging.info
                 loggingenabled = 1
             checkforupdatesonstartup = readvaluefromconfig('updater', 'checkforupdatesonstartup')
-        except Exception:
+        except Exception as e:
             loggingenabled = 1
             checkforupdatesonstartup = 1
-            logger.error("Cannot find option value(s) in config.ini. Either the file doesn't exist or the value(s) are missing.")
+            logger.error("Cannot find option value(s) in config.ini.\n Exception: %s" % (str(e)))
             print("Config compromised! Attempting to recreate...")
             createconfig()
-    except Exception:
-        print("Unknown exception. Trying to create config...")
+    except Exception as e:
+        print("Trying to create config...\n Exception: %s" % (str(e)))
         createconfig()
 
 def createconfig():
@@ -113,11 +114,12 @@ def createconfig():
     try:
         with open(configfilename, 'w') as configfile:
             config.write(configfile)
-    except Exception:
-        logger.error("Unhandled error occurred while writing the config. Using default settings.")
-        print("Unhandled error occurred while writing the config. Using default settings.")
+    except Exception as e:
+        logger.error("Unhandled error occurred while writing the config. Using default settings.\n Exception: %s" % (str(e)))
+        print("Unhandled error occurred while writing the config. Using default settings.\n Exception: %s" % (str(e)))
     
 def setloggingoptions():
+    try:
         logfilename = 'log.log'
         handler = logging.FileHandler(logfilename)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -129,6 +131,8 @@ def setloggingoptions():
         logger.addHandler(handler)
         logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
         logger.info("")
+    except Exception as e:
+        print("Cannot create log.\n Exception: %s" % (str(e)))
 
 def checkforupdates():
     menu="update"
@@ -137,10 +141,10 @@ def checkforupdates():
     try:
         onlineversion=lbtlib.iolib.readonlinefile(onlineversioninfourl)
         downloadurl=lbtlib.iolib.readonlinefile(latestversionurl)
-    except:
+    except Exception as e:
         status=1
-        print("Failed to check for updates. github.io is blocked or no internet connection?")
-        logger.error("Failed to check for updates. github.io is blocked or no internet connection?")
+        print("Failed to check for updates.\n Exception: %s" % (str(e)))
+        logger.error("Failed to check for updates.\n Exception: %s" % (str(e)))
 
     if status == 0:
         logger.info("Comparing onlineversion(%s) to local version(%s)." % (onlineversion, version))
@@ -232,15 +236,19 @@ def converttext2binary():
             logger.info("Chose option (%s) on menu (%s)" % (ct2b, menu))
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
-            text=lbtlib.iolib.readfromtextfile(path)
-
-            if text == 1:
-                print("Cannot read %s." % (path))
+            try:
+                text=lbtlib.iolib.readfromtextfile(path)
+            except Exception as e:
+                print("Cannot read %s.\n Exception: %s" % (path, str(e)))
                 break
-            else:
+            try:
                 convertedtext=lbtlib.conlib.text2binary(text)
-                print("Your text file has been converted into binary and now reads:")
-                print(convertedtext)
+            except Exception as e:
+                print("Cannot convert %s.\n Exception: %s" % (text, str(e)))
+                break
+
+            print("Your text file has been converted into binary and now reads:")
+            print(convertedtext)
             
             writetotextfilemenu=True
             while writetotextfilemenu:
@@ -252,7 +260,11 @@ def converttext2binary():
                 if writetotextfilemenu == "1":
                     pathnotice()
                     path=input(">>> ")
-                    lbtlib.iolib.writetotextfile(convertedtext, path)
+                    try:
+                        lbtlib.iolib.writetotextfile(convertedtext, path)
+                    except Exception as e:
+                        print("Cannot write %s.\n Exception: %s" % (path, str(e)))
+                
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -267,8 +279,10 @@ def converttext2binary():
             logger.info("Chose option (%s) on menu (%s)" % (ct2b, menu))
             print("Please input the text you want to converted into binary below.")
             text=input(">>> ")
-            
-            convertedtext=lbtlib.conlib.text2binary(text)
+            try:
+                convertedtext=lbtlib.conlib.text2binary(text)
+            except Exception as e:
+                print("Cannot converted %s.\n Exception: %s" % (text, str(e)))
             print("Your text has been converted into binary and now reads:")
             print(convertedtext)
             
@@ -282,7 +296,11 @@ def converttext2binary():
                 if writetotextfilemenu == "1":
                     pathnotice()
                     path=input(">>> ")
-                    lbtlib.iolib.writetotextfile(convertedtext, path)
+                    try:
+                        lbtlib.iolib.writetotextfile(convertedtext, path)
+                    except Exception as e:
+                        print("Cannot write %s.\n Exception: %s" % (path, str(e)))
+                        
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -320,15 +338,18 @@ def convertbinary2text():
             logger.info("Chose option (%s) on menu (%s)" % (cb2t, menu))
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
-            binary=lbtlib.iolib.readfromtextfile(path)
-
-            if binary == 1:
-                print("Cannot read %s." % (path))
+            try:
+                binary=lbtlib.iolib.readfromtextfile(path)
+            except Exception as e:
+                print("Cannot read %s.\n Exception: %s" % (path, str(e)))
                 break
-            else:
+            try:
                 convertedbinary=lbtlib.conlib.binary2text(binary)
-                print("Your text file has been converted into text and now reads:")
-                print(convertedbinary)
+            except Exception as e:
+                print("Cannot convert %s.\n Exception: %s" % (binary, str(e)))
+                break
+            print("Your text file has been converted into text and now reads:")
+            print(convertedbinary)
             
             writetotextfilemenu=True
             while writetotextfilemenu:
@@ -340,7 +361,10 @@ def convertbinary2text():
                 if writetotextfilemenu == "1":
                     pathnotice()
                     path=input(">>> ")
-                    lbtlib.iolib.writetotextfile(convertedtext, path)
+                    try:
+                        lbtlib.iolib.writetotextfile(convertedtext, path)
+                    except Exception as e:
+                        print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -355,8 +379,10 @@ def convertbinary2text():
             logger.info("Chose option (%s) on menu (%s)" % (cb2t, menu))
             print("Please input the binary you want to converted into text below.")
             binary=input(">>> ")
-            
-            convertedtext=lbtlib.conlib.binary2text(binary)
+            try:
+                convertedtext=lbtlib.conlib.binary2text(binary)
+            except Exception as e:
+                print("Cannot convert %s.\n Exception: %s" % (binary, str(e)))
             print("Your binary has been converted into text and now reads:")
             print(convertedtext)
             
@@ -370,7 +396,10 @@ def convertbinary2text():
                 if writetotextfilemenu == "1":
                     pathnotice()
                     path=input(">>> ")
-                    lbtlib.iolib.writetotextfile(convertedtext, path)
+                    try:
+                        lbtlib.iolib.writetotextfile(convertedtext, path)
+                    except Exception as e:
+                        print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -407,15 +436,18 @@ def convertint2binary():
             logger.info("Chose option (%s) on menu (%s)" % (ci2b, menu))
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
-            integer=lbtlib.iolib.readfromtextfile(path)
-            
-            if integer == 3:
-                print("Cannot read %s." %(path))
+            try:
+                integer=lbtlib.iolib.readfromtextfile(path)
+            except Exception as e:
+                print("Cannot read %s.\n Exception: %s" % (path, str(e)))
                 break
-            else:
+            try:
                 convertedinteger=lbtlib.conlib.int2binary(integer)
-                print("Your text file has been converted into text and now reads:")
-                print(convertedinteger)
+            except Exception as e:
+                print("Cannot convert %s.\n Exception: %s" % (integer, str(e)))
+                break
+            print("Your text file has been converted into text and now reads:")
+            print(convertedinteger)
             
             writetotextfilemenu=True
             while writetotextfilemenu:
@@ -427,7 +459,10 @@ def convertint2binary():
                 if writetotextfilemenu == "1":
                     pathnotice()
                     path=input(">>> ")
-                    lbtlib.iolib.writetotextfile(convertedinteger, path)
+                    try:
+                        lbtlib.iolib.writetotextfile(convertedinteger, path)
+                    except Exception as e:
+                        print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -442,8 +477,11 @@ def convertint2binary():
             logger.info("Chose option (%s) on menu (%s)" % (ci2b, menu))
             print("Please input the integer you want to converted into binary below.")
             integer=input(">>> ")
-            
-            convertedinteger=lbtlib.conlib.int2binary(integer)
+            try:
+                convertedinteger=lbtlib.conlib.int2binary(integer)
+            except Exception as e:
+                print("Cannot convert %s.\n Exception: %s" % (integer, str(e)))
+                break
             print("Your integer has been converted into binary and now reads:")
             print(convertedinteger)
             
@@ -457,7 +495,10 @@ def convertint2binary():
                 if writetotextfilemenu == "1":
                     pathnotice()
                     path=input(">>> ")
-                    lbtlib.iolib.writetotextfile(convertedinteger, path)
+                    try:
+                        lbtlib.iolib.writetotextfile(convertedinteger, path)
+                    except Exception as e:
+                        print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -494,14 +535,18 @@ def convertbinary2int():
             logger.info("Chose option (%s) on menu (%s)" % (cbti, menu))
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
-            binary=lbtlib.iolib.readfromtextfile(path)
-            if binary == 1:
-                print("Cannot read %s." % (path))
+            try:
+                binary=lbtlib.iolib.readfromtextfile(path)
+            except Exception as e:
+                print("Cannot read %s.\n Exception: %s" % (path, str(e)))
                 break
-            else:
+            try:
                 convertedbinary=lbtlib.conlib.binary2int(binary)
-                print("The binary inside your text file has been converted into an integer and now reads:")
-                print(convertedbinary)
+            except Exception as e:
+                print("Cannot convert %s.\n Exception: %s" % (binary, str(e)))
+                break
+            print("The binary inside your text file has been converted into an integer and now reads:")
+            print(convertedbinary)
             
             writetotextfilemenu=True
             while writetotextfilemenu:
@@ -513,7 +558,10 @@ def convertbinary2int():
                 if writetotextfilemenu == "1":
                     pathnotice()
                     path=input(">>> ")
-                    lbtlib.iolib.writetotextfile(convertedbinary, path)
+                    try:
+                        lbtlib.iolib.writetotextfile(convertedbinary, path)
+                    except Exception as e:
+                        print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -528,8 +576,11 @@ def convertbinary2int():
             logger.info("Chose option (%s) on menu (%s)" % (cbti, menu))
             print("Please input the binary you want to converted into an integer below.")
             binary=input(">>> ")
-            
-            convertedbinary=lbtlib.conlib.binary2int(binary)
+            try:
+                convertedbinary=lbtlib.conlib.binary2int(binary)
+            except Exception as e:
+                print("Cannot convert %s.\n Exception: %s" % (binary, str(e)))
+                break
             print("Your binary has been converted into an integer and now reads:")
             print(convertedbinary)
             
@@ -543,7 +594,10 @@ def convertbinary2int():
                 if writetotextfilemenu == "1":
                     pathnotice()
                     path=input(">>> ")
-                    lbtlib.iolib.writetotextfile(convertedbinary, path)
+                    try:
+                        lbtlib.iolib.writetotextfile(convertedbinary, path)
+                    except Exception as e:
+                        print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
 
                 elif writetotextfilemenu == "2":
@@ -659,7 +713,8 @@ logger.info("%s loaded!" % (appname))
 logger.info("Version: %s %s" % (version,release))
 try:
     cfuos=config.getint("updater", "checkforupdatesonstartup")
-except Exception:
+except Exception as e:
+    print("Failed to get updater value.\n Exception: %s" % (str(e)))
     cfuos=1
     createconfig()
 logger.info("checkforupdatesonstartup = %s" % (cfuos))
