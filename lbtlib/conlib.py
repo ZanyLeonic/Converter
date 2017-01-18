@@ -1,11 +1,13 @@
+import re
+
 appname="LBT Conversion module"
-author="Leo Durrant (2016)"
-buliddate="12/10/16"
-version="0.2a"
+author="Leo Durrant (2017)"
+buliddate="12/01/17"
+version="0.21a"
 release="alpha"
 licenseabout="""
-    Leonic Binary Tool 
-    Copyright (C) 2016 Leo Durrant
+    Converter
+    Copyright (C) 2016, 2017 Leo Durrant
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,6 +40,34 @@ def binary2int(inputbin):
     integer = int(inputbin, 2)
     return integer
 
+def text2hexdec(inputtext):
+    output = ""
+    inputtext=inputtext.strip()
+    
+    for l in inputtext:
+        output = "{}\n{}".format(output, hex(ord(l)))
+    output = output.lstrip()
+    return output
+
+def hexdec2text(inputhex):
+    output = ""
+    
+    inputhex = inputhex.replace("0x", "")
+    hexalist=re.split(r"\n", inputhex)
+    filteredhex=list(filter(None, hexalist))
+
+    length = int(len(filteredhex))
+    i = 0
+    
+    #for obj in filteredhex:
+    while True:
+        newobj = bytearray.fromhex(filteredhex[i])
+        output = "{}{}".format(output, newobj.decode())
+        i += 1
+        if length == i:
+            break
+    return output
+
 if __name__ == "__main__":
     print("%s by %s." % (appname, author))
     print("Version: %s %s built on %s" % (version, release, buliddate))
@@ -48,6 +78,7 @@ if __name__ == "__main__":
         binary2text(inputbin)  - Converts inputbin into a string and returns it.
         int2binary(inputint)   - Converts inputint into binary and returns it.
         binary2int(inputbin)   - Converts inputbin into an integer and returns it.
+        text2hexdec(inputtext) - Converts each character in the string to hexadecminal and returns it.
     For further releases and information check out the links below.""")
     print("""
     Wordpress: http://leonicweb.wordpress.com/

@@ -12,7 +12,7 @@ except Exception:
     print("Unable to load lbtlib. Please redownload this program or download lbtlib from http://github.com/ZanyLeonic/LeonicBinaryTool")
     sys.exit(1)
                  
-appname="Leonic Binary Tool"
+appname="Converter"
 author="Leo Durrant (2016)"
 buliddate="12/10/16"
 version="0.2a"
@@ -20,8 +20,8 @@ release="alpha"
 configfilename="config.ini"
 configfilereadname=r"config.ini"
 licenseabout="""
-    Leonic Binary Tool
-    Copyright (C) 2016 Leo Durrant
+    Converter
+    Copyright (C) 2016, 2017 Leo Durrant
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -186,7 +186,7 @@ def about():
         print("============================================")
         print("""
         Please type the number of a function.
-            1. Wordpress
+            1. Website
             2. Github
             3. Check for updates
             4. Back to main menu
@@ -195,8 +195,8 @@ def about():
         aboutmenu=input(">>> ")
         if aboutmenu == "1":
             logger.info("Chose option (%s) on menu (%s)" % (aboutmenu, menu))
-            webbrowser.open("http://leonicweb.wordpress.com/")
-            print("Attempted to open 'http://leonicweb.wordpress.com/' in your default webbrowser.")
+            webbrowser.open("http://leonic.no-ip.biz/")
+            print("Attempted to open 'http://leonic.no-ip.biz/' in your default webbrowser.")
             print("If it failed to do so, enter the url into your browser.")
             aboutmenu = True
         elif aboutmenu == "2":

@@ -63,3 +63,5 @@ target/
 
 *.lnk
 .idlerc/
+*.xcf
+*.db

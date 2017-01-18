@@ -1,13 +1,15 @@
 import urllib.request
+import webbrowser
+import platform
 
 appname="LBT IO functions module"
-author="Leo Durrant (2016)"
-buliddate="12/10/16"
-version="0.2a"
+author="Leo Durrant (2017)"
+buliddate="12/01/17"
+version="0.21a"
 release="alpha"
 licenseabout="""
-    Leonic Binary Tool 
-    Copyright (C) 2016 Leo Durrant
+    Converter
+    Copyright (C) 2016, 2017 Leo Durrant
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,6 +33,7 @@ def writetotextfile(inputtext, paths):
         
 def readfromtextfile(path):
     file=open(path,"r")
+    file.seek(0)
     text=file.read()
     return text
 
@@ -45,6 +48,24 @@ def readonlinefile(url):
         text = str(text)
         return text
 
+def openinwebbrowser(url, suppressopenmsg=False):
+    webbrowser.open(str(url))
+    if not suppressopenmsg == True:
+        print("Attempted to open '%s' in your default webbrowser." % (str(url)))
+        print("If it failed to do so, enter the url manually into your browser.")
+
+def systemos():
+    sysos = platform.system()
+
+    if  "Windows" in sysos:
+        return 0
+    elif "Linux"  in sysos:
+        return 1
+    elif "Darwin" in sysos:
+        return 2
+    else:
+        return 3
+    
 if __name__ == "__main__":
     print("%s by %s." % (appname, author))
     print("Version: %s %s built on %s" % (version, release, buliddate))
@@ -54,6 +75,8 @@ if __name__ == "__main__":
         writetotextfile(inputtext) - Writes inputtext to were the user specifies.
         readfromtextfile(path)     - Reads from the file specified in path.
         readonlinefile(url)        - Attempts to read the file specified in the URL returns text. If it fails, returns errorcode.
+        openinwebbrowser(url, suppressopenmsg=False) - Attempts to open URL in the default webbrowser. Displays a message after if not supressopenmsg = True.
+        systemos()                 - Returns the systems OS for code for certain OSes.
     For further releases and information check out the links below.""")
     print("""
     Wordpress: http://leonicweb.wordpress.com/
