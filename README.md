@@ -7,12 +7,13 @@ This project is under the GNU Public License v3. Feel free to modify this progra
 
 ###Implemented and planned features:
 * Updater [Implemented! (Ver 0.1a)]
-* GUI mode [TODO]
+* GUI mode [WIP]
 * Publish and get from Pastebin [TODO]
 * Launcher [TODO]
 * Converting and saving text files [Implemented! (Ver 0.1a)]
 * Configuration files [Implemented! (Ver 0.1a)]
-* Conversion of text to binary, binary to text, integers to binary, binary to integers. [Implemented! (Ver 0.1a)
+* Conversion of text to binary, binary to text, integers to binary, binary to integers. [Implemented! (Ver 0.1a)]
+* Conversion of text and integers to hexadecimal (Two way.) [Implemented! (Ver 0.2a)] 
 * Conversion of Floats? [TODO]
 
 ###What do you think?
