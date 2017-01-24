@@ -6,6 +6,7 @@ import sys
 import webbrowser
 import configparser
 import logging
+import platform
 try:
     import lbtlib
 except Exception:
@@ -45,6 +46,9 @@ latestversionurl="http://zanyleonic.github.io/LeonicBinaryTool/latest.url"
 logger=logging.getLogger("[LBT]")
 menu="null"
 menudisplayname="null"
+
+currentdir=os.path.dirname(os.path.realpath(__file__))
+systemos=lbtlib.iolib.systemos()
 
 def menutitle(menudisplayname):
         print("============================================")
@@ -119,20 +123,29 @@ def createconfig():
         print("Unhandled error occurred while writing the config. Using default settings.\n Exception: %s" % (str(e)))
     
 def setloggingoptions():
-    try:
-        logfilename = 'log.log'
-        handler = logging.FileHandler(logfilename)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        if loggingenabled == 0:
-            logging.basicConfig()
-        else:
-            logging.basicConfig(filename=logfilename, level=logging.DEBUG)
-        logger.addHandler(handler)
-        logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
-        logger.info("")
-    except Exception as e:
-        print("Cannot create log.\n Exception: %s" % (str(e)))
+    while True:
+        try:
+            logfilename = 'data//logs//log_cmd ({}).log'.format(time.strftime("%d-%m-%Y"))
+            handler = logging.FileHandler(logfilename)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            if loggingenabled == 0:
+                logging.basicConfig()
+            else:
+                logging.basicConfig(filename=logfilename, level=logging.DEBUG)
+            logger.addHandler(handler)
+            logger.handlers.pop()
+            logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
+            logger.info('Running on {} version {}.'.format(platform.system(), platform.release()))
+            logger.info("%s version (%s %s) started in directory: %s", appname, version, release, currentdir)
+            break
+        except Exception as e:
+            print("Cannot create log.\n Exception: %s" % (str(e)))
+            try:
+                os.mkdir("data//logs")
+            except Exception as e:
+                print("Cannot create logs folder.\n Exception: %s" % (str(e)))
+
 
 def checkforupdates():
     menu="update"
@@ -516,6 +529,7 @@ def convertint2binary():
             logger.info("Chose option (%s) on menu (%s)" % (ci2b, menu))
             print("Invalid option.")
             ci2b=True
+            
 def convertbinary2int():
     cbti = True
     while cbti:
@@ -615,6 +629,209 @@ def convertbinary2int():
             logger.info("Chose option (%s) on menu (%s)" % (cbti, menu))
             print("Invalid option.")
             cbti=True
+            
+def converttextinttohex():
+    ctith = True
+    while ctith:
+        menu="ctith"
+        menudisplayname="Convert text and integer to hexadecimal"
+        menutitle(menudisplayname)
+        print("""
+        Please type the number of a function.
+            1. Open a text file to convert
+            2. Type text to convert
+            3. Back to main menu
+        """)
+        print("============================================")
+        ctith = input(">>> ")
+        
+        if ctith == "1":
+            logger.info("Chose option (%s) on menu (%s)" % (ctith, menu))
+            print("Please enter a path to the text file you wish to convert.")
+            path=input(">>> ")
+            try:
+                txtint=lbtlib.iolib.readfromtextfile(path)
+            except Exception as e:
+                print("Cannot read %s.\n Exception: %s" % (path, str(e)))
+                break
+            try:
+                convertedtext=lbtlib.conlib.text2hexdec(txtint)
+            except Exception as e:
+                print("Cannot convert %s.\n Exception: %s" % (binary, str(e)))
+                break
+            print("The text inside your text file has been converted into hexadecimal and now reads:")
+            print(convertedtext)
+            
+            writetotextfilemenu=True
+            while writetotextfilemenu:
+                print("Do you want to save the converted binary as a text file?")
+                print("1. Yes")
+                print("2. No")
+                writetotextfilemenu=input(">>> ")
+
+                if writetotextfilemenu == "1":
+                    pathnotice()
+                    path=input(">>> ")
+                    try:
+                        lbtlib.iolib.writetotextfile(convertedtext, path)
+                    except Exception as e:
+                        print("Cannot write %s.\n Exception: %s" % (path, str(e)))
+                    writetotextfilemenu=False
+
+                elif writetotextfilemenu == "2":
+                    writetotextfilemenu=False
+
+                else:
+                    print("Invalid selection")
+                    writetotextfilemenu=True
+                    
+            ctith=True
+        elif ctith == "2":
+            logger.info("Chose option (%s) on menu (%s)" % (ctith, menu))
+            print("Please input the binary you want to converted into an integer below.")
+            text=input(">>> ")
+            try:
+                convertedtext=lbtlib.conlib.text2hexdec(text)
+            except Exception as e:
+                print("Cannot convert %s.\n Exception: %s" % (text, str(e)))
+                break
+            print("Your binary has been converted into an integer and now reads:")
+            print(convertedtext)
+            
+            writetotextfilemenu=True
+            while writetotextfilemenu:
+                print("Do you want to save the converted text as a text file?")
+                print("1. Yes")
+                print("2. No")
+                writetotextfilemenu=input(">>> ")
+
+                if writetotextfilemenu == "1":
+                    pathnotice()
+                    path=input(">>> ")
+                    try:
+                        lbtlib.iolib.writetotextfile(convertedtext, path)
+                    except Exception as e:
+                        print("Cannot write %s.\n Exception: %s" % (path, str(e)))
+                    writetotextfilemenu=False
+
+                elif writetotextfilemenu == "2":
+                    writetotextfilemenu=False
+
+                else:
+                    print("Invalid selection")
+                    writetotextfilemenu=True
+            
+        elif ctith == "3":
+            logger.info("Chose option (%s) on menu (%s)" % (ctith, menu))
+            cbti = False
+
+        else:
+            logger.info("Chose option (%s) on menu (%s)" % (ctith, menu))
+            print("Invalid option.")
+            cbti=True
+
+def converthextotextint():
+    chtti = True
+    while chtti:
+        menu="chtti"
+        menudisplayname="Convert hexadecimal to text/int"
+        menutitle(menudisplayname)
+        print("""
+        Please type the number of a function.
+            1. Open a text file to convert
+            2. Type text to convert
+            3. Back to main menu
+        """)
+        print("============================================")
+        chtti = input(">>> ")
+        
+        if chtti == "1":
+            logger.info("Chose option (%s) on menu (%s)" % (chtti, menu))
+            print("Please enter a path to the text file you wish to convert.")
+            print("Note: Make sure each hex is on a different line in order for the hex to be converted correctly.")
+            path=input(">>> ")
+            try:
+                hexin=lbtlib.iolib.readfromtextfile(path)
+            except Exception as e:
+                print("Cannot read %s.\n Exception: %s" % (path, str(e)))
+                break
+            try:
+                convertedhex=lbtlib.conlib.hexdec2text(hexin)
+            except Exception as e:
+                print("Cannot convert %s.\n Exception: %s" % (binary, str(e)))
+                break
+            print("The hexadecimal inside your text file has been converted and now reads:")
+            print(convertedhex)
+            
+            writetotextfilemenu=True
+            while writetotextfilemenu:
+                print("Do you want to save the converted hexadecimal as a text file?")
+                print("1. Yes")
+                print("2. No")
+                writetotextfilemenu=input(">>> ")
+
+                if writetotextfilemenu == "1":
+                    pathnotice()
+                    path=input(">>> ")
+                    try:
+                        lbtlib.iolib.writetotextfile(convertedhex, path)
+                    except Exception as e:
+                        print("Cannot write %s.\n Exception: %s" % (path, str(e)))
+                    writetotextfilemenu=False
+
+                elif writetotextfilemenu == "2":
+                    writetotextfilemenu=False
+
+                else:
+                    print("Invalid selection")
+                    writetotextfilemenu=True
+                    
+            chtti=True
+        elif chtti == "2":
+            logger.info("Chose option (%s) on menu (%s)" % (chtti, menu))
+            print("Please input the hexadecimal you want to converted below.")
+            print("Note: At the moment only one hex can be converted at a time using this method.")
+            print("Note: Use a text file to convert the hex or the GUI version to avoid this.")
+            hexin=input(">>> ")
+            try:
+                convertedhex=lbtlib.conlib.hexdec2text(hexin)
+            except Exception as e:
+                print("Cannot convert %s.\n Exception: %s" % (hexin, str(e)))
+                break
+            print("Your binary has been converted into an integer and now reads:")
+            print(convertedhex)
+            
+            writetotextfilemenu=True
+            while writetotextfilemenu:
+                print("Do you want to save the converted text as a text file?")
+                print("1. Yes")
+                print("2. No")
+                writetotextfilemenu=input(">>> ")
+
+                if writetotextfilemenu == "1":
+                    pathnotice()
+                    path=input(">>> ")
+                    try:
+                        lbtlib.iolib.writetotextfile(convertedhex, path)
+                    except Exception as e:
+                        print("Cannot write %s.\n Exception: %s" % (path, str(e)))
+                    writetotextfilemenu=False
+
+                elif writetotextfilemenu == "2":
+                    writetotextfilemenu=False
+
+                else:
+                    print("Invalid selection")
+                    writetotextfilemenu=True
+            
+        elif chtti == "3":
+            logger.info("Chose option (%s) on menu (%s)" % (chtti, menu))
+            chtti = False
+
+        else:
+            logger.info("Chose option (%s) on menu (%s)" % (chtti, menu))
+            print("Invalid option.")
+            chtti=True
             
 def settings():
     catsets = True
@@ -737,9 +954,11 @@ while mainmenusel:
         2. Convert binary to text
         3. Convert integer to binary
         4. Convert binary to integer
-        5. Settings
-        6. About
-        7. Exit
+        5. Convert text/int to hexadecimal
+        6. Convert hexadecimal to text/int
+        7. Settings
+        8. About
+        9. Exit
     """)
     print("============================================")
     mainmenusel = input(">>> ")
@@ -761,13 +980,21 @@ while mainmenusel:
         mainmenusel = True
     elif mainmenusel == "5":
         logger.info("Chose option (%s) on menu (%s)" % (mainmenusel, menu))
-        settings()
+        converttextinttohex()
         mainmenusel = True
     elif mainmenusel == "6":
         logger.info("Chose option (%s) on menu (%s)" % (mainmenusel, menu))
-        about()
+        converthextotextint()
         mainmenusel = True
     elif mainmenusel == "7":
+        logger.info("Chose option (%s) on menu (%s)" % (mainmenusel, menu))
+        settings()
+        mainmenusel = True
+    elif mainmenusel == "8":
+        logger.info("Chose option (%s) on menu (%s)" % (mainmenusel, menu))
+        about()
+        mainmenusel = True
+    elif mainmenusel == "9":
         logger.info("Chose option (%s) on menu (%s)" % (mainmenusel, menu))
         print("See ya!")
         logger.info("Exiting...")

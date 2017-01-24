@@ -1,4 +1,4 @@
-Converter
+Converter, lbtlib, convlib
 Copyright (C) 2016, 2017 Leo Durrant
 
 This program is free software: you can redistribute it and/or modify

@@ -14,7 +14,7 @@ except Exception as e:
 try:
     import PIL.Image
 except Exception as e:
-    print("Failed to import Python Image Library\n Please install it with pip using 'pip install pillow'. \n Exception: %s" % (str(e)))
+    print("Failed to import Python Image Library\n Please install it with pip using 'pip install pillow'. (Shouldn't be a much of a problem.) \n Exception: %s" % (str(e)))
     
 try:
     from tkinter import *
@@ -45,6 +45,8 @@ configfilename="data//config.ini"
 configfilereadname=r"data/config.ini"
 progicon=r"data/images/converter.ico"
 abouticon=r"data/images/about_con.gif"
+
+# Some import error thingys
 
 licenseabout="""
     Converter
@@ -84,6 +86,7 @@ def checkmethod(option, window):
     
     if selected == "()":
         messagebox.showerror("Error", "Please select an option.")
+        logger.error("User chose option {}. But {} is an invaild option!".format(selected, selected))
     elif "0" in selected:
         window.destroy();
         createconvertwindow(selected)
@@ -104,6 +107,7 @@ def checkmethod(option, window):
         window.destroy();
         createconvertwindow(selected)
     else:
+        logger.error("User chose option {}. But {} is an invaild option!".format(selected, selected))
         messagebox.showerror("Error", "{} is an invaild option, please try again.".format(selected))
         
 def empty():
@@ -119,35 +123,35 @@ def convert(mode, inputcon, window):
             converted=conlib.text2binary(inputcon)
             createresultwindow(mode, converted)
         except Exception as e:
-            print("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
+            logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
             messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s." % (inputcon, mode, str(e)))
     elif "1" in mode:
         try:
             converted=conlib.binary2text(inputcon)
             createresultwindow(mode, converted)
         except Exception as e:
-            print("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
+            logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
             messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s." % (inputcon, mode, str(e)))
     elif "2" in mode:
         try:
             converted=conlib.int2binary(inputcon)
             createresultwindow(mode, converted)
         except Exception as e:
-            print("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
+            logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
             messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s." % (inputcon, mode, str(e)))
     elif "3" in mode:
         try:
             converted=conlib.binary2int(inputcon)
             createresultwindow(mode, converted)
         except Exception as e:
-            print("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
+            logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
             messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s." % (inputcon, mode, str(e)))
     elif "4" in mode:
         try:
             converted=conlib.text2hexdec(inputcon)
             createresultwindow(mode, converted)
         except Exception as e:
-            print("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
+            logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
             messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s." % (inputcon, mode, str(e)))
     elif "5" in mode:
         try:
@@ -155,17 +159,19 @@ def convert(mode, inputcon, window):
             converted=conlib.hexdec2text(inputcon)
             createresultwindow(mode, converted)
         except Exception as e:
-            print("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
+            logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
             messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s." % (inputcon, mode, str(e)))
     else:
-        print("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, "invaild operation."))
+        logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
         messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, "invaild operation."))
     
 def showsettings(window):
+    logger.info("Opening settings window from window")
     window.destroy()
     createsettingwindow()
 
 def showabout():
+    logger.info("Opening about window from window")
     createaboutwindow()
     
 def initializesetting(section, valuename, checkbutton):
@@ -243,22 +249,28 @@ def createconfig():
         messagebox.showerror("Error", "Unhandled error occurred while writing the config. Using default settings.\n Exception: %s" % (str(e)))
     
 def setloggingoptions():
-    try:
-        logfilename = 'data//logs//log_gui ({}).log'.format(time.strftime("%d-%m-%Y"))
-        handler = logging.FileHandler(logfilename)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        if loggingenabled == 0:
-            logging.basicConfig()
-        else:
-            logging.basicConfig(filename=logfilename, level=logging.DEBUG)
-        logger.addHandler(handler)
-        logger.handlers.pop()
-        logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
-        logger.info('Running on {} version {}.'.format(platform.system(), platform.release()))
-        logger.info("%s version (%s %s) started in directory: %s", appname, version, release, currentdir)
-    except Exception as e:
-        messagebox.showerror("Error", "Cannot create log.\n Exception: %s" % (str(e)))
+    while True:
+        try:
+            logfilename = 'data//logs//log_gui ({}).log'.format(time.strftime("%d-%m-%Y"))
+            handler = logging.FileHandler(logfilename)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            if loggingenabled == 0:
+                logging.basicConfig()
+            else:
+                logging.basicConfig(filename=logfilename, level=logging.DEBUG)
+            logger.addHandler(handler)
+            logger.handlers.pop()
+            logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
+            logger.info('Running on {} version {}.'.format(platform.system(), platform.release()))
+            logger.info("%s version (%s %s) started in directory: %s", appname, version, release, currentdir)
+            break
+        except Exception as e:
+            messagebox.showerror("Error", "Cannot create log.\n Exception: %s" % (str(e)))
+            try:
+                os.mkdir("data//logs")
+            except Exception as e:
+                messagebox.showerror("Error", "Cannot create logs folder.\n Exception: %s" % (str(e)))
 
 def savefile(master, text):
     try:
@@ -313,7 +325,16 @@ def copytoclipboard(window, content):
         print("Failed to copy '%s' to the clipboard.\n Exception: %s" % (content, str(e)))
         messagebox.showerror("Error", "Failed to copy '%s' to the clipboard.\n Exception: %s." % (content, str(e)))
 
-def checkforupdates(supresserrors=True):
+def exittowindow(window, nextwindow=0):
+    window.destroy()
+    if nextwindow == 0:
+        createmainwindow()
+
+def exitapp(window):
+    window.destroy()
+    sys.exit(0)
+
+def checkforupdates(supressinfo=True):
     status=0
     try:
         onlineversion=iolib.readonlinefile(onlineversioninfourl)
@@ -321,7 +342,7 @@ def checkforupdates(supresserrors=True):
     except Exception as e:
         status=1
         logger.error("Failed to check for updates.\n Exception: %s" % (str(e)))
-        if supresserrors == False:
+        if supressinfo == False:
             messagebox.showerror("Check for updates", "Failed to check for updates.\n Exception: {}".format(str(e)), icon='info')
 
     if status == 0:
@@ -341,8 +362,9 @@ def checkforupdates(supresserrors=True):
                     print("Invalid option.")
                     update=True
         elif onlineversion==version:
-            print("LBT is up to date!")
-            logger.info("LBT is up to date. Version (%s)" % (version))
+            if supressinfo == False:
+                messagebox.showinfo("Check for updates", "{} is up to date at version {}.".format(appname, version))
+            logger.info("%s is up to date. Version (%s)" % (appname, version))
 
 def restart(window):
     window.destroy()
@@ -355,8 +377,8 @@ def end(window):
 def createlicensewindow(title, text):
     
     if systemos == 0:
-        windowwidth=475
-        windowheight=350
+        windowwidth=650
+        windowheight=375
     elif systemos == 1:
         windowwidth=625
         windowheight=350
@@ -388,7 +410,7 @@ def createmainwindow():
     windowwidth=300
     windowheight=250
     
-    mainwindow = Tk()
+    mainwindow = Toplevel()
     
     mainwindow.title(appname)
     try:
@@ -429,13 +451,14 @@ def createmainwindow():
     btn2.pack(side = LEFT)
     btn3.pack(side = RIGHT)
 
+    mainwindow.protocol("WM_DELETE_WINDOW", lambda: exitapp(mainwindow))
     mainwindow.mainloop()
 
 def createconvertwindow(mode):
     windowwidth=414
     windowheight=475
     
-    convertwindow = Tk()
+    convertwindow = Toplevel()
     modedesc = "null"
     
     if "0" in mode:
@@ -484,13 +507,14 @@ def createconvertwindow(mode):
     panel2.pack(side = TOP)
     btn2.pack(side = BOTTOM)
 
+    convertwindow.protocol("WM_DELETE_WINDOW", lambda: exittowindow(convertwindow))
     convertwindow.mainloop()
 
 def createresultwindow(mode, txt):
     windowwidth=414
     windowheight=530
     
-    resultwindow = Tk()
+    resultwindow = Toplevel()
     modedesc = "null"
     conversionsaved=0
     
@@ -544,14 +568,15 @@ def createresultwindow(mode, txt):
     btn2.pack(side = TOP)
     btn3.pack(side = TOP)
     btn4.pack(side = TOP)
-	
+    
+    resultwindow.protocol("WM_DELETE_WINDOW", lambda: exittowindow(resultwindow))
     resultwindow.mainloop()
 
 def createsettingwindow():
     windowwidth=300
     windowheight=250
     
-    settingwindow = Tk()
+    settingwindow = Toplevel()
     
     settingwindow.title("{}: Settings".format(appname))
     try:
@@ -680,6 +705,9 @@ def createaboutwindow():
     aboutwindow.mainloop()
     
 print("Starting...")
+
+root = Tk()
+root.withdraw()
 
 setloggingoptions()
 loadconfig()

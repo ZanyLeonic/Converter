@@ -53,7 +53,7 @@ def openinwebbrowser(url, suppressopenmsg=False):
     if not suppressopenmsg == True:
         print("Attempted to open '%s' in your default webbrowser." % (str(url)))
         print("If it failed to do so, enter the url manually into your browser.")
-
+    
 def systemos():
     sysos = platform.system()
 

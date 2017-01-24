@@ -65,3 +65,5 @@ target/
 .idlerc/
 *.xcf
 *.db
+data/config.ini
+data/logs/*.log

@@ -1,0 +1,43 @@
+These are libraries (and programs) that Converter or Converter GUI 
+has used that is open source.
+Even though they are open source, I would still like to list what 
+I used to make this program.
+
+Python Image Library (PIL)
+================================
+
+TODO: add PIL's license
+
+tk/tcl 8.5
+================================
+
+TODO: add tk/tcl license
+
+py2exe 3.4
+================================
+
+TODO: add py2exe license
+
+Python3 (and included libraries)
+================================
+
+TODO: add python3 license
+
+lbtlib (or convlib soon)
+================================
+
+Converter, lbtlib, convlib
+Copyright (C) 2016, 2017 Leo Durrant
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
