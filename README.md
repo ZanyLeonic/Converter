@@ -1,4 +1,4 @@
-# Converter [![Build Status](https://travis-ci.org/ZanyLeonic/Converter.svg?branch=master)](https://travis-ci.org/ZanyLeonicZanyLeonic/Converter)
+# Converter [![Build Status](https://travis-ci.org/ZanyLeonic/Converter.svg?branch=master)](https://travis-ci.org/ZanyLeonic/Converter)
 A small tool that converts integers and text to binary and back.
 
 Written in with Python 3 and with tons of cups of tea. (Tested with Python 3.4.4 and 3.5.1.)
