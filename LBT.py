@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import time
 import os
 import os.path
@@ -18,8 +18,8 @@ author="Leo Durrant (2016)"
 buliddate="12/10/16"
 version="0.2a"
 release="alpha"
-configfilename="config.ini"
-configfilereadname=r"config.ini"
+configfilename="data//config_cmd.ini"
+configfilereadname=r"data/config_cmd.ini"
 licenseabout="""
     Converter
     Copyright (C) 2016, 2017 Leo Durrant
@@ -140,7 +140,7 @@ def setloggingoptions():
             logger.info("%s version (%s %s) started in directory: %s", appname, version, release, currentdir)
             break
         except Exception as e:
-            print("Cannot create log.\n Exception: %s" % (str(e)))
+            print("Cannot create log. \n Exception: %s\nTrying to create logs folder..." % (str(e)))
             try:
                 os.mkdir("data//logs")
             except Exception as e:

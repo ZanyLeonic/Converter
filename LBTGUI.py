@@ -37,12 +37,12 @@ except Exception as e:
 appname="Converter"
 author="Leo Durrant (2016/17)"
 buliddate="10/10/16"
-version="0.1a"
+version="0.2a"
 release="alpha"
 
 # App resources
-configfilename="data//config.ini"
-configfilereadname=r"data/config.ini"
+configfilename="data//config_gui.ini"
+configfilereadname=r"data/config_gui.ini"
 progicon=r"data/images/converter.ico"
 abouticon=r"data/images/about_con.gif"
 
@@ -72,14 +72,16 @@ windowheight=250
 # App settings and variables
 loggingenabled=1
 checkforupdatesonstartup=1
-onlineversioninfourl="http://zanyleonic.github.io/LeonicBinaryTool/version.ver"
-latestversionurl="http://zanyleonic.github.io/LeonicBinaryTool/latest.url"
+onlineversioninfourl="http://zanyleonic.github.io/Converter/version.ver"
+latestversionurl="http://zanyleonic.github.io/Converter/latest.url"
 websiteurl="http://leonic.no-ip.biz/"
-githuburl="http://github.com/ZanyLeonic/LeonicBinaryTool/"
-logger=logging.getLogger("[LBT]")
+githuburl="http://github.com/ZanyLeonic/Converter/"
+patchnotesurl="http://zanyleonic.github.io/Converter/latest.info"
+logger=logging.getLogger("[Converter]")
 conversionsaved=0
 currentdir=os.path.dirname(os.path.realpath(__file__))
 systemos=iolib.systemos()
+patchnotesopen=False
 
 def checkmethod(option, window):
     selected=str(option)
@@ -266,7 +268,7 @@ def setloggingoptions():
             logger.info("%s version (%s %s) started in directory: %s", appname, version, release, currentdir)
             break
         except Exception as e:
-            messagebox.showerror("Error", "Cannot create log.\n Exception: %s" % (str(e)))
+            messagebox.showerror("Error", "Cannot create log.\n Exception: %s\nTrying to create logs folder..." % (str(e)))
             try:
                 os.mkdir("data//logs")
             except Exception as e:
@@ -337,9 +339,12 @@ def exitapp(window):
 def checkforupdates(supressinfo=True):
     status=0
     try:
+        print("Checking for updates...", end=" ")
         onlineversion=iolib.readonlinefile(onlineversioninfourl)
         downloadurl=iolib.readonlinefile(latestversionurl)
+        patchnotes=iolib.readonlinefile(patchnotesurl)
     except Exception as e:
+        print("Failed!")
         status=1
         logger.error("Failed to check for updates.\n Exception: %s" % (str(e)))
         if supressinfo == False:
@@ -349,18 +354,7 @@ def checkforupdates(supressinfo=True):
         logger.info("Comparing onlineversion(%s) to local version(%s)." % (onlineversion, version))
         if not onlineversion==version:
             logger.info("Version %s is avaiable." % (onlineversion))
-            update=True
-            while update==True:
-                update = messagebox.askquestion("Version {} available".format(onlineversion), "Version {} is available for download. Would you like to get it now? (Current version {})".format(onlineversion, version), icon='info')
-                if update=="yes":
-                    webbrowser.open(downloadurl)
-                    update=False
-                elif update=="no":
-                    print("")
-                    update=False
-                else:
-                    print("Invalid option.")
-                    update=True
+            createupdateinfowindow("Version {} is available".format(onlineversion), patchnotes, onlineversion, downloadurl)
         elif onlineversion==version:
             if supressinfo == False:
                 messagebox.showinfo("Check for updates", "{} is up to date at version {}.".format(appname, version))
@@ -374,17 +368,26 @@ def end(window):
     window.destroy()
     sys.exit(0)
 
-def createlicensewindow(title, text):
+def closepatchnotes(window):
+    global patchnotesopen
+    patchnotesopen=False
+    window.destroy()
+
+def closewindowandopenurl(window, downloadurl):
+    window.destroy()
+    webbrowser.open(downloadurl)
+
+def createupdateinfowindow(title, text, onversion, downloadurl):
     
     if systemos == 0:
-        windowwidth=650
-        windowheight=375
+        windowwidth=385
+        windowheight=93
     elif systemos == 1:
-        windowwidth=625
-        windowheight=350
+        windowwidth=385
+        windowheight=93
     else:
-        windowwidth=625
-        windowheight=350
+        windowwidth=385
+        windowheight=93
     abouticon1=r"data/images/about_con.gif"
     licensewindow = Toplevel()
     licensewindow.title("{}: {}".format(appname, title))
@@ -397,6 +400,53 @@ def createlicensewindow(title, text):
     except Exception as e:
         messagebox.showerror("Error", "Error while setting program icon\n {}.".format(str(e)))
     licensewindow.geometry("{}x{}".format(windowwidth,windowheight))
+
+    choicebox = Frame(licensewindow)
+    updatelabel = Label(licensewindow, text="Version {} is available.\nDo you want to download it now? (Current version: {})".format(onversion, version))
+    
+    btn1 = Button(choicebox, text="Patch notes", command=lambda: createlicensewindow("Patch notes (Version {})".format(onversion), text, True))
+    btn2 = Button(choicebox, text="Yes", command=lambda: closewindowandopenurl(licensewindow, downloadurl))
+    btn3 = Button(choicebox, text="No", command=lambda: licensewindow.destroy())
+
+    btn1.grid(row=0, column=3, sticky=N+S+W+E, padx=2, pady=5)
+    btn2.grid(row=0, column=1, sticky=N+S+W+E, padx=2, pady=5)
+    btn3.grid(row=0, column=2, sticky=N+S+W+E, padx=2, pady=5)
+
+    choicebox.pack(side=BOTTOM)
+    updatelabel.pack()
+    
+def createlicensewindow(title, text, patchnotes=False):
+    global patchnotesopen
+    
+    if systemos == 0:
+        windowwidth=670
+        windowheight=375
+    elif systemos == 1:
+        windowwidth=670
+        windowheight=350
+    else:
+        windowwidth=670
+        windowheight=350
+    abouticon1=r"data/images/about_con.gif"
+    licensewindow = Toplevel()
+    licensewindow.title("{}: {}".format(appname, title))
+    if patchnotesopen==True:
+        licensewindow.destroy()
+    else: 
+        try:
+          if systemos == 0: # Check if the user is using Windows...
+              licensewindow.iconbitmap(progicon)
+          else: # If not...
+              ico = PhotoImage(file=abouticon1)
+              licensewindow.tk.call('wm', 'iconphoto', licensewindow._w, ico)
+        except Exception as e:
+            messagebox.showerror("Error", "Error while setting program icon\n {}.".format(str(e)))
+        licensewindow.geometry("{}x{}".format(windowwidth,windowheight))
+
+    if patchnotes == True:
+        if patchnotesopen==False:
+            patchnotesopen=True
+            licensewindow.protocol("WM_DELETE_WINDOW", lambda: closepatchnotes(licensewindow))
     
     aboutbox = tkst.ScrolledText(licensewindow, width=str(windowwidth), height=str(windowheight))
 
@@ -674,7 +724,7 @@ def createaboutwindow():
     about_appbuildinfo=Label(panel1, text="Written by {} on the {}".format(author, buliddate))
     about_conlib=Label(panel1, text="{} {} ({}) by {}. \nBuilt on {}.".format(conlib.appname, conlib.version, conlib.release, conlib.author, conlib.buliddate), width=str(windowwidth))
     about_iolib=Label(panel1, text="{} {} ({}) by {}. \nBuilt on {}.".format(iolib.appname, iolib.version, iolib.release, iolib.author, iolib.buliddate), width=str(windowwidth))
-    about_extrainfo=Label(panel1, text="Please report any bugs to the issues tracker on the\n Github repo and tell me what I can improve on this app.\n Any feedback apperciated!", width=str(windowwidth))
+    about_extrainfo=Label(panel1, text="Please report any bugs to the issues tracker on the\n Github repo and tell me what I can improve on this app.\n All feedback apperciated!", width=str(windowwidth))
 
     btn1=Button(links, text="Legal info", command=lambda: createlicensewindow("Legal info", legalinfotext))
     btn2=Button(links, text="Github", command=lambda: iolib.openinwebbrowser(githuburl))
@@ -706,7 +756,19 @@ def createaboutwindow():
     
 print("Starting...")
 
+# Main window for messageboxes.
 root = Tk()
+root.title("{}".format(appname))
+try:
+    if systemos == 0:
+        root.iconbitmap(progicon)
+    else:
+        ico = PhotoImage(file=abouticon)
+        root.tk.call('wm', 'iconphoto', root._w, ico)
+except Exception as e:
+    root.withdraw()
+    messagebox.showerror("Error", "Error while setting program icon\n {}.".format(str(e)))
+
 root.withdraw()
 
 setloggingoptions()
