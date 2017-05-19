@@ -24,8 +24,8 @@ licenseabout="""
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     """
 def checkforupdates_test():
-    onlineversioninfourl="http://zanyleonic.github.io/LeonicBinaryTool/version.ver"
-    latestversionurl="http://zanyleonic.github.io/LeonicBinaryTool/latest.url"
+    onlineversioninfourl="http://zanyleonic.github.io/UpdateInfo/Converter/version.ver"
+    latestversionurl="http://zanyleonic.github.io/UpdateInfo/Converter/latest.url"
     print("Checking for updates...")
     status=0
     try:
