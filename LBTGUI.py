@@ -70,13 +70,14 @@ windowwidth=300
 windowheight=250
 
 # App settings and variables
-loggingenabled=1
-checkforupdatesonstartup=1
-onlineversioninfourl="http://zanyleonic.github.io/Converter/version.ver"
-latestversionurl="http://zanyleonic.github.io/Converter/latest.url"
+bLoggingenabled=1
+bCheckforupdatesonstartup=1
+bAppendtxtwhensaving=1
+onlineversioninfourl="http://zanyleonic.github.io/UpdateInfo/Converter/version.ver"
+latestversionurl="http://zanyleonic.github.io/UpdateInfo/Converter/latest.url"
 websiteurl="http://leonic.no-ip.biz/"
 githuburl="http://github.com/ZanyLeonic/Converter/"
-patchnotesurl="http://zanyleonic.github.io/Converter/latest.info"
+patchnotesurl="http://zanyleonic.github.io/UpdateInfo/Converter/latest.info"
 logger=logging.getLogger("[Converter]")
 conversionsaved=0
 currentdir=os.path.dirname(os.path.realpath(__file__))
@@ -127,6 +128,7 @@ def convert(mode, inputcon, window):
         except Exception as e:
             logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
             messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s." % (inputcon, mode, str(e)))
+            createmainwindow()
     elif "1" in mode:
         try:
             converted=conlib.binary2text(inputcon)
@@ -134,6 +136,7 @@ def convert(mode, inputcon, window):
         except Exception as e:
             logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
             messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s." % (inputcon, mode, str(e)))
+            createmainwindow()
     elif "2" in mode:
         try:
             converted=conlib.int2binary(inputcon)
@@ -141,6 +144,7 @@ def convert(mode, inputcon, window):
         except Exception as e:
             logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
             messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s." % (inputcon, mode, str(e)))
+            createmainwindow()
     elif "3" in mode:
         try:
             converted=conlib.binary2int(inputcon)
@@ -148,6 +152,7 @@ def convert(mode, inputcon, window):
         except Exception as e:
             logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
             messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s." % (inputcon, mode, str(e)))
+            createmainwindow()
     elif "4" in mode:
         try:
             converted=conlib.text2hexdec(inputcon)
@@ -155,6 +160,7 @@ def convert(mode, inputcon, window):
         except Exception as e:
             logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
             messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s." % (inputcon, mode, str(e)))
+            createmainwindow()
     elif "5" in mode:
         try:
             inputcon=inputcon.strip()
@@ -163,6 +169,7 @@ def convert(mode, inputcon, window):
         except Exception as e:
             logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
             messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s." % (inputcon, mode, str(e)))
+            createmainwindow()
     else:
         logger.error("Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, str(e)))
         messagebox.showerror("Error", "Error when converting %s to mode %s\n Exception: %s" % (inputcon, mode, "invaild operation."))
@@ -221,28 +228,33 @@ def setvalueinconfig(section, key, value):
         messagebox.showerror("Error", "Unhandled error occurred while writing the config. Using default settings.\n Exception: %s" % (str(e)))
             
 def loadconfig():
-    try:
-        config = configparser.ConfigParser()
-        config.read(configfilereadname)
+
+    if os.path.exists(configfilereadname) == True:
         try:
-            loggingenabled = readvaluefromconfig('general', 'createlog')
-            if loggingenabled == "null":
-                logging.info
-                loggingenabled = 1
-            checkforupdatesonstartup = readvaluefromconfig('updater', 'checkforupdatesonstartup')
+            config = configparser.ConfigParser()
+            config.read(configfilereadname)
+            try:
+                bLoggingenabled = readvaluefromconfig('general', 'bLoggingenabled')
+                if bLoggingenabled == "null":
+                    logging.info
+                    bLoggingenabled = 1
+                bAppendtxtwhensaving = readvaluefromconfig('general', 'bAppendtxtwhensaving')
+                bCheckforupdatesonstartup = readvaluefromconfig('updater', 'bCheckforupdatesonstartup')
+            except Exception as e:
+                bLoggingenabled = 1
+                bCheckforupdatesonstartup = 1
+                logger.error("Cannot find option value(s) in config.ini.\n Exception: %s" % (str(e)))
+                print("Configuration file out of date! Rebuilding...")
+                createconfig()
         except Exception as e:
-            loggingenabled = 1
-            checkforupdatesonstartup = 1
-            logger.error("Cannot find option value(s) in config.ini.\n Exception: %s" % (str(e)))
-            print("Configuration file out of date! Rebuilding...")
             createconfig()
-    except Exception as e:
+    else:
         createconfig()
 
 def createconfig():
     config = configparser.ConfigParser()
-    config['general'] = {'createlog': '1'}
-    config['updater'] = {'checkforupdatesonstartup': '1'}
+    config['general'] = {'bLoggingenabled': '1', 'bAppendtxtwhensaving' : '1'}
+    config['updater'] = {'bCheckforupdatesonstartup': '1'}
     try:
         with open(configfilename, 'w') as configfile:
             config.write(configfile)
@@ -252,34 +264,40 @@ def createconfig():
     
 def setloggingoptions():
     while True:
-        try:
-            logfilename = 'data//logs//log_gui ({}).log'.format(time.strftime("%d-%m-%Y"))
-            handler = logging.FileHandler(logfilename)
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            handler.setFormatter(formatter)
-            if loggingenabled == 0:
-                logging.basicConfig()
-            else:
-                logging.basicConfig(filename=logfilename, level=logging.DEBUG)
-            logger.addHandler(handler)
-            logger.handlers.pop()
-            logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
-            logger.info('Running on {} version {}.'.format(platform.system(), platform.release()))
-            logger.info("%s version (%s %s) started in directory: %s", appname, version, release, currentdir)
-            break
-        except Exception as e:
-            messagebox.showerror("Error", "Cannot create log.\n Exception: %s\nTrying to create logs folder..." % (str(e)))
+        if os.path.exists("data//logs") == True:
             try:
-                os.mkdir("data//logs")
+                logfilename = 'data//logs//log_gui ({}).log'.format(time.strftime("%d-%m-%Y"))
+                handler = logging.FileHandler(logfilename)
+                formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+                handler.setFormatter(formatter)
+                if bLoggingenabled == 0:
+                    logging.basicConfig()
+                else:
+                    logging.basicConfig(filename=logfilename, level=logging.DEBUG)
+                logger.addHandler(handler)
+                logger.handlers.pop()
+                logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
+                logger.info('Running on {} version {}.'.format(platform.system(), platform.release()))
+                logger.info("%s version (%s %s) started in directory: %s", appname, version, release, currentdir)
+                break
             except Exception as e:
-                messagebox.showerror("Error", "Cannot create logs folder.\n Exception: %s" % (str(e)))
+                messagebox.showerror("Error", "Cannot create log.\n Exception: %s\nTrying to create logs folder..." % (str(e)))
+                try:
+                    os.mkdir("data//logs")
+                except Exception as e:
+                    messagebox.showerror("Error", "Cannot create logs folder.\n Exception: %s" % (str(e)))
+        else:
+            os.mkdir("data//logs")
 
 def savefile(master, text):
     try:
         filename = filedialog.asksaveasfilename(filetypes=(("Text files", "*.txt"),
                                                          ("All files", "*.*") ))
         if not filename == "":
-            txtcontent = iolib.writetotextfile(text, filename)
+            if bAppendtxtwhensaving == 1:
+                txtcontent = iolib.writetotextfile(text, filename + ".txt")
+            else:
+                txtcontent = iolib.writetotextfile(text, filename)
             if txtcontent == 1:
                 print("Something went wrong while saving : %s.\n Does this user have to approrite permissions to the file?" % (filename))
                 messagebox.showerror("Error", "Something went wrong while saving to: %s.\n Do you have the approrite permissions to the file?" % (filename))
@@ -562,7 +580,7 @@ def createconvertwindow(mode):
 
 def createresultwindow(mode, txt):
     windowwidth=414
-    windowheight=530
+    windowheight=545
     
     resultwindow = Toplevel()
     modedesc = "null"
@@ -624,7 +642,7 @@ def createresultwindow(mode, txt):
 
 def createsettingwindow():
     windowwidth=300
-    windowheight=250
+    windowheight=255
     
     settingwindow = Toplevel()
     
@@ -651,20 +669,23 @@ def createsettingwindow():
 
     check1val = IntVar()
     check2val = IntVar()
+    check3val = IntVar()
     
     con1txt.set("Modify the settings below to change\n the way the program works.")
     con2txt.set("* These settings require {} to be\n restarted for full effect.".format(appname))
     
-    checkbox1 = Checkbutton(group1, text="Create log*",  variable=check1val, width=str(windowwidth), command=lambda: setvalueinconfig("general", "createlog", str(check1val.get())))
-    checkbox2 = Checkbutton(group2, text="Check for updates on startup",  variable=check2val, width=str(windowwidth), command=lambda: setvalueinconfig("updater", "checkforupdatesonstartup", str(check2val.get())))
+    checkbox1 = Checkbutton(group1, text="Create log*",  variable=check1val, width=str(windowwidth), command=lambda: setvalueinconfig("general", "bLoggingenabled", str(check1val.get())))
+    checkbox2 = Checkbutton(group2, text="Check for updates on startup",  variable=check2val, width=str(windowwidth), command=lambda: setvalueinconfig("updater", "bCheckforupdatesonstartup", str(check2val.get())))
+    checkbox3 = Checkbutton(group1, text="Append '.txt' when saving files",  variable=check3val, width=str(windowwidth), command=lambda: setvalueinconfig("general", "bappendtxtwhensaving", str(check3val.get())))
 
     btn1 = Button(panel2, text="Close", command=lambda: restart(settingwindow), width=str(windowwidth))
     
     con1 = Label(panel1, textvariable=con1txt, relief=SUNKEN, width=str(windowwidth))
     con2 = Label(panel2, textvariable=con2txt, width=str(windowwidth))
     
-    initializesetting("general","createlog", checkbox1)
-    initializesetting("updater","checkforupdatesonstartup", checkbox2)
+    initializesetting("general","bLoggingenabled", checkbox1)
+    initializesetting("updater","bCheckforupdatesonstartup", checkbox2)
+    initializesetting("general","bappendtxtwhensaving", checkbox3)
     
     panel1.pack(side=TOP)
     group1.pack(side=TOP, padx=10, pady=10)
@@ -675,6 +696,7 @@ def createsettingwindow():
     con2.pack()
     checkbox1.pack(side=LEFT)
     checkbox2.pack(side=LEFT)
+    checkbox3.pack(side=LEFT)
     btn1.pack(side=BOTTOM)
 
     settingwindow.protocol("WM_DELETE_WINDOW", empty)

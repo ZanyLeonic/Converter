@@ -41,8 +41,8 @@ print("Starting...")
 print(licenseabout)
 loggingenabled=1
 checkforupdatesonstartup=1
-onlineversioninfourl="http://zanyleonic.github.io/LeonicBinaryTool/version.ver"
-latestversionurl="http://zanyleonic.github.io/LeonicBinaryTool/latest.url"
+onlineversioninfourl="http://zanyleonic.github.io/UpdateInfo/Converter/version.ver"
+latestversionurl="http://zanyleonic.github.io/UpdateInfo/Converter/latest.url"
 logger=logging.getLogger("[LBT]")
 menu="null"
 menudisplayname="null"
