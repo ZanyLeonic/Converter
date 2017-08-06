@@ -29,8 +29,8 @@ except Exception as e:
 try:
     from lbtlib import *
 except Exception as e:
-    messagebox.showerror("Fatal error", "Unable to load lbtlib. Please redownload this program or download lbtlib from http://github.com/ZanyLeonic/LeonicBinaryTool\nException: {}".format(str(e)))
-    print("Unable to load lbtlib. Please redownload this program or download lbtlib from http://github.com/ZanyLeonic/LeonicBinaryTool\nException: {}".format(str(e)))
+    messagebox.showerror("Fatal error", "Unable to load lbtlib. Please redownload this program or download lbtlib from http://github.com/ZanyLeonic/Converter\nException: {}".format(str(e)))
+    print("Unable to load lbtlib. Please redownload this program or download lbtlib from http://github.com/ZanyLeonic/Converter\nException: {}".format(str(e)))
     sys.exit(1)
 
 # App info
@@ -91,23 +91,23 @@ def checkmethod(option, window):
         messagebox.showerror("Error", "Please select an option.")
         logger.error("User chose option {}. But {} is an invaild option!".format(selected, selected))
     elif "0" in selected:
-        window.destroy();
+        window.destroy()
         createconvertwindow(selected)
     elif "1" in selected:
-        window.destroy();
+        window.destroy()
         createconvertwindow(selected)
     elif "2" in selected:
-        window.destroy();
+        window.destroy()
         createconvertwindow(selected)
     elif "3" in selected:
-        window.destroy();
+        window.destroy()
         createconvertwindow(selected)
     elif "4" in selected:
-        window.destroy();
+        window.destroy()
         createconvertwindow(selected)
     elif "5" in selected:
         messagebox.showinfo("Information", "Every seperate hexadecimal has to be on a new line in order to be converted correctly.")
-        window.destroy();
+        window.destroy()
         createconvertwindow(selected)
     else:
         logger.error("User chose option {}. But {} is an invaild option!".format(selected, selected))
@@ -293,11 +293,11 @@ def savefile(master, text):
     try:
         filename = filedialog.asksaveasfilename(filetypes=(("Text files", "*.txt"),
                                                          ("All files", "*.*") ))
+        if bAppendtxtwhensaving == 1:
+            filename = filename + ".txt"
+        
         if not filename == "":
-            if bAppendtxtwhensaving == 1:
-                txtcontent = iolib.writetotextfile(text, filename + ".txt")
-            else:
-                txtcontent = iolib.writetotextfile(text, filename)
+            txtcontent = iolib.writetotextfile(text, filename)
             if txtcontent == 1:
                 print("Something went wrong while saving : %s.\n Does this user have to approrite permissions to the file?" % (filename))
                 messagebox.showerror("Error", "Something went wrong while saving to: %s.\n Do you have the approrite permissions to the file?" % (filename))
@@ -642,7 +642,7 @@ def createresultwindow(mode, txt):
 
 def createsettingwindow():
     windowwidth=300
-    windowheight=255
+    windowheight=275
     
     settingwindow = Toplevel()
     
@@ -694,7 +694,7 @@ def createsettingwindow():
 
     con1.pack()
     con2.pack()
-    checkbox1.pack(side=LEFT)
+    checkbox1.pack(side=TOP)
     checkbox2.pack(side=LEFT)
     checkbox3.pack(side=LEFT)
     btn1.pack(side=BOTTOM)

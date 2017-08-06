@@ -1,7 +1,8 @@
-These are libraries (and programs) that Converter or Converter GUI 
+﻿These are libraries (and programs) that Converter or Converter GUI 
 has used that is open source.
 Even though they are open source, I would still like to list what 
-I used to make this program.
+I used to make this program. 
+(You can find a copy of this text file in data/text/opensourcelibraries.txt)
 
 Python Image Library (PIL)
 ================================

@@ -4,8 +4,8 @@ import platform
 
 appname="LBT IO functions module"
 author="Leo Durrant (2017)"
-buliddate="12/01/17"
-version="0.21a"
+buliddate="06/08/17"
+version="0.22a"
 release="alpha"
 licenseabout="""
     Converter

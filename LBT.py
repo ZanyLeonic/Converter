@@ -10,12 +10,12 @@ import platform
 try:
     import lbtlib
 except Exception:
-    print("Unable to load lbtlib. Please redownload this program or download lbtlib from http://github.com/ZanyLeonic/LeonicBinaryTool")
+    print("Unable to load lbtlib. Please redownload this program or download lbtlib from http://github.com/ZanyLeonic/Converter")
     sys.exit(1)
                  
 appname="Converter"
 author="Leo Durrant (2016)"
-buliddate="12/10/16"
+buliddate="06/08/17"
 version="0.2a"
 release="alpha"
 configfilename="data//config_cmd.ini"
@@ -39,8 +39,10 @@ licenseabout="""
     """
 print("Starting...")
 print(licenseabout)
-loggingenabled=1
-checkforupdatesonstartup=1
+
+bLoggingEnabled=1
+bCheckforupdatesonstartup=1
+bAppendtxtwhensaving=1
 onlineversioninfourl="http://zanyleonic.github.io/UpdateInfo/Converter/version.ver"
 latestversionurl="http://zanyleonic.github.io/UpdateInfo/Converter/latest.url"
 logger=logging.getLogger("[LBT]")
@@ -92,29 +94,32 @@ def setvalueinconfig(section, key, value):
         print("Unhandled error occurred while writing the config. Using default settings.\n Exception: %s" % (str(e)))
             
 def loadconfig():
-    try:
-        config = configparser.ConfigParser()
-        config.read(configfilereadname)
+    if os.path.exists(configfilereadname) == True:
         try:
-            loggingenabled = readvaluefromconfig('general', 'createlog')
-            if loggingenabled == "null":
-                logging.info
-                loggingenabled = 1
-            checkforupdatesonstartup = readvaluefromconfig('updater', 'checkforupdatesonstartup')
+            config = configparser.ConfigParser()
+            config.read(configfilereadname)
+            try:
+                bLoggingEnabled = readvaluefromconfig('general', 'bLoggingEnabled')
+                if bLoggingEnabled == "null":
+                    logging.info
+                    bLoggingEnabled = 1
+                bCheckforupdatesonstartup = readvaluefromconfig('updater', 'bCheckforupdatesonstartup')
+            except Exception as e:
+                bLoggingEnabled = 1
+                bCheckforupdatesonstartup = 1
+                logger.error("Cannot find option value(s) in config.ini.\n Exception: %s" % (str(e)))
+                print("Config compromised! Attempting to recreate...")
+                createconfig()
         except Exception as e:
-            loggingenabled = 1
-            checkforupdatesonstartup = 1
-            logger.error("Cannot find option value(s) in config.ini.\n Exception: %s" % (str(e)))
-            print("Config compromised! Attempting to recreate...")
+            print("Trying to create config...\n Exception: %s" % (str(e)))
             createconfig()
-    except Exception as e:
-        print("Trying to create config...\n Exception: %s" % (str(e)))
+    else:
         createconfig()
 
 def createconfig():
     config = configparser.ConfigParser()
-    config['general'] = {'createlog': '1'}
-    config['updater'] = {'checkforupdatesonstartup': '1'}
+    config['general'] = {'bLoggingEnabled': '1', 'bAppendtxtwhensaving': '1'}
+    config['updater'] = {'bCheckforupdatesonstartup': '1'}
     try:
         with open(configfilename, 'w') as configfile:
             config.write(configfile)
@@ -124,29 +129,31 @@ def createconfig():
     
 def setloggingoptions():
     while True:
-        try:
-            logfilename = 'data//logs//log_cmd ({}).log'.format(time.strftime("%d-%m-%Y"))
-            handler = logging.FileHandler(logfilename)
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            handler.setFormatter(formatter)
-            if loggingenabled == 0:
-                logging.basicConfig()
-            else:
-                logging.basicConfig(filename=logfilename, level=logging.DEBUG)
-            logger.addHandler(handler)
-            logger.handlers.pop()
-            logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
-            logger.info('Running on {} version {}.'.format(platform.system(), platform.release()))
-            logger.info("%s version (%s %s) started in directory: %s", appname, version, release, currentdir)
-            break
-        except Exception as e:
-            print("Cannot create log. \n Exception: %s\nTrying to create logs folder..." % (str(e)))
+        if os.path.exists("data//logs") == True:
             try:
-                os.mkdir("data//logs")
+                logfilename = 'data//logs//log_cmd ({}).log'.format(time.strftime("%d-%m-%Y"))
+                handler = logging.FileHandler(logfilename)
+                formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+                handler.setFormatter(formatter)
+                if bLoggingEnabled == 0:
+                    logging.basicConfig()
+                else:
+                    logging.basicConfig(filename=logfilename, level=logging.DEBUG)
+                logger.addHandler(handler)
+                logger.handlers.pop()
+                logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
+                logger.info('Running on {} version {}.'.format(platform.system(), platform.release()))
+                logger.info("%s version (%s %s) started in directory: %s", appname, version, release, currentdir)
+                break
             except Exception as e:
-                print("Cannot create logs folder.\n Exception: %s" % (str(e)))
+                print("Cannot create log. \n Exception: %s\nTrying to create logs folder..." % (str(e)))
+                try:
+                    os.mkdir("data//logs")
+                except Exception as e:
+                    print("Cannot create logs folder.\n Exception: %s" % (str(e)))
 
-
+        else:
+            os.mkdir("data//logs")
 def checkforupdates():
     menu="update"
     print("Checking for updates...")
@@ -214,8 +221,8 @@ def about():
             aboutmenu = True
         elif aboutmenu == "2":
             logger.info("Chose option (%s) on menu (%s)" % (aboutmenu, menu))
-            webbrowser.open("http://github.com/ZanyLeonic/LeonicBinaryTool/")
-            print("Attempted to open 'http://github.com/ZanyLeonic/LeonicBinaryTool/' in your default webbrowser.")
+            webbrowser.open("http://github.com/ZanyLeonic/Converter/")
+            print("Attempted to open 'http://github.com/ZanyLeonic/Converter/' in your default webbrowser.")
             print("If it failed to do so, enter the url into your browser.")
             aboutmenu = True
         elif aboutmenu == "3":
@@ -274,6 +281,8 @@ def converttext2binary():
                     pathnotice()
                     path=input(">>> ")
                     try:
+                        if bAppendtxtwhensaving == 1:
+                            path = path + ".txt"
                         lbtlib.iolib.writetotextfile(convertedtext, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
@@ -310,6 +319,8 @@ def converttext2binary():
                     pathnotice()
                     path=input(">>> ")
                     try:
+                        if bAppendtxtwhensaving == 1:
+                            path = path + ".txt"
                         lbtlib.iolib.writetotextfile(convertedtext, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
@@ -375,6 +386,8 @@ def convertbinary2text():
                     pathnotice()
                     path=input(">>> ")
                     try:
+                        if bAppendtxtwhensaving == 1:
+                            path = path + ".txt"
                         lbtlib.iolib.writetotextfile(convertedtext, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
@@ -410,6 +423,8 @@ def convertbinary2text():
                     pathnotice()
                     path=input(">>> ")
                     try:
+                        if bAppendtxtwhensaving == 1:
+                            path = path + ".txt"
                         lbtlib.iolib.writetotextfile(convertedtext, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
@@ -473,6 +488,8 @@ def convertint2binary():
                     pathnotice()
                     path=input(">>> ")
                     try:
+                        if bAppendtxtwhensaving == 1:
+                            path = path + ".txt"
                         lbtlib.iolib.writetotextfile(convertedinteger, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
@@ -509,6 +526,8 @@ def convertint2binary():
                     pathnotice()
                     path=input(">>> ")
                     try:
+                        if bAppendtxtwhensaving == 1:
+                            path = path + ".txt"
                         lbtlib.iolib.writetotextfile(convertedinteger, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
@@ -573,6 +592,8 @@ def convertbinary2int():
                     pathnotice()
                     path=input(">>> ")
                     try:
+                        if bAppendtxtwhensaving == 1:
+                            path = path + ".txt"
                         lbtlib.iolib.writetotextfile(convertedbinary, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
@@ -609,6 +630,8 @@ def convertbinary2int():
                     pathnotice()
                     path=input(">>> ")
                     try:
+                        if bAppendtxtwhensaving == 1:
+                            path = path + ".txt"
                         lbtlib.iolib.writetotextfile(convertedbinary, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
@@ -673,6 +696,8 @@ def converttextinttohex():
                     pathnotice()
                     path=input(">>> ")
                     try:
+                        if bAppendtxtwhensaving == 1:
+                            path = path + ".txt"
                         lbtlib.iolib.writetotextfile(convertedtext, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
@@ -709,6 +734,8 @@ def converttextinttohex():
                     pathnotice()
                     path=input(">>> ")
                     try:
+                        if bAppendtxtwhensaving == 1:
+                            path = path + ".txt"
                         lbtlib.iolib.writetotextfile(convertedtext, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
@@ -774,6 +801,8 @@ def converthextotextint():
                     pathnotice()
                     path=input(">>> ")
                     try:
+                        if bAppendtxtwhensaving == 1:
+                            path = path + ".txt"
                         lbtlib.iolib.writetotextfile(convertedhex, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
@@ -812,6 +841,8 @@ def converthextotextint():
                     pathnotice()
                     path=input(">>> ")
                     try:
+                        if bAppendtxtwhensaving == 1:
+                            path = path + ".txt"
                         lbtlib.iolib.writetotextfile(convertedhex, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
@@ -856,7 +887,8 @@ def settings():
             sets1 = True
             while sets1:
                 menu="settings>general"
-                createlogcurval=readvaluefromconfig("general", "createlog")
+                bLoggingEnabledcurval=readvaluefromconfig("general", "bLoggingEnabled")
+                bAppendtxtwhensavingcurval=readvaluefromconfig("general", "bAppendtxtwhensaving")
                 print("============================================")
                 print("Welcome to %s!" %(appname))
                 print("Version %s" % (version))
@@ -865,18 +897,26 @@ def settings():
                 print("""
                 Please type the number of a setting to toggle or set.
                 1. Logging (Current value: %s)
-                2. Back to main menu
-                """ % (createlogcurval))
+                2. Append '.txt' when saving (Current value: %s)
+                3. Back to main menu
+                """ % (bLoggingEnabledcurval, bAppendtxtwhensavingcurval))
                 print("============================================")
                 sets1 = input(">>> ")
                 if sets1 == "1":
                     logger.info("Chose option (%s) on menu (%s)" % (sets1, menu))
-                    currentlogval=readvaluefromconfig("general", "createlog")
+                    currentlogval=readvaluefromconfig("general", "bLoggingEnabled")
                     if currentlogval=="1":
-                        setvalueinconfig("general", "createlog", "0")
+                        setvalueinconfig("general", "bLoggingEnabled", "0")
                     elif currentlogval=="0":
-                        setvalueinconfig("general", "createlog", "1")
+                        setvalueinconfig("general", "bLoggingEnabled", "1")
                 elif sets1 == "2":
+                    logger.info("Chose option (%s) on menu (%s)" % (sets1, menu))
+                    currentappendtxtval=readvaluefromconfig("general", "bAppendtxtwhensaving")
+                    if currentappendtxtval=="1":
+                        setvalueinconfig("general", "bAppendtxtwhensaving", "0")
+                    elif currentappendtxtval=="0":
+                        setvalueinconfig("general", "bAppendtxtwhensaving", "1")
+                elif sets1 == "3":
                     logger.info("Chose option (%s) on menu (%s)" % (sets1, menu))
                     sets1 = False
 
@@ -885,7 +925,7 @@ def settings():
             sets2 = True
             while sets2:
                 menu="settings>updater"
-                updatercurval=readvaluefromconfig("updater", "checkforupdatesonstartup")
+                updatercurval=readvaluefromconfig("updater", "bCheckforupdatesonstartup")
                 print("============================================")
                 print("Welcome to %s!" % (appname))
                 print("Version %s" % (version))
@@ -900,11 +940,11 @@ def settings():
                 sets2 = input(">>> ")
                 if sets2 == "1":
                     logger.info("Chose option (%s) on menu (%s)" % (sets2, menu))
-                    currentupostartval=readvaluefromconfig("updater", "checkforupdatesonstartup")
+                    currentupostartval=readvaluefromconfig("updater", "bCheckforupdatesonstartup")
                     if currentupostartval=="1":
-                        setvalueinconfig("updater", "checkforupdatesonstartup", "0")
+                        setvalueinconfig("updater", "bCheckforupdatesonstartup", "0")
                     elif currentupostartval=="0":
-                        setvalueinconfig("updater", "checkforupdatesonstartup", "1")
+                        setvalueinconfig("updater", "bCheckforupdatesonstartup", "1")
                 elif sets2 == "2":
                     logger.info("Chose option (%s) on menu (%s)" % (sets2, menu))
                     sets2 = False
@@ -928,17 +968,6 @@ loadconfig()
 
 logger.info("%s loaded!" % (appname))
 logger.info("Version: %s %s" % (version,release))
-try:
-    cfuos=config.getint("updater", "checkforupdatesonstartup")
-except Exception as e:
-    print("Failed to get updater value.\n Exception: %s" % (str(e)))
-    cfuos=1
-    createconfig()
-logger.info("checkforupdatesonstartup = %s" % (cfuos))
-if cfuos == 1:
-    checkforupdates()
-else:
-    print("Checking for updates on startup disabled.")
 
 menu="main"
 mainmenusel = True

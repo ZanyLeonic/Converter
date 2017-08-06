@@ -67,3 +67,7 @@ target/
 *.db
 data/*.ini
 data/logs/*.log
+
+# IDEs and text editors
+.vscode/
+.vs/
