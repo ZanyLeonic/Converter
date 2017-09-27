@@ -1,18 +1,19 @@
 #!/usr/bin/python3
+# Remember to copy the tk and tcl dll files to the build folder after building!
 import sys
 from cx_Freeze import setup, Executable
 
 base = None
 if sys.platform == "win32":
-    base = "Console"
+    base = "Win32GUI"
 
-executableName = "Converter.exe"
+executableName = "ConverterGUI.exe"
 executableIcon = "data\\images\\converter.ico"
 includefiles = []
 includes = []
-excludes = ["tkinter"]
+excludes = []
 copyright = "(c) 2016 - 2017 Leo Durrant"
-packages = ["convlib"]
+packages = ["tkinter", "convlib"]
 
 options = {
     'build_exe': {
@@ -24,11 +25,11 @@ options = {
 }
 
 setup(
-    name = "Converter",
+    name = "Converter (GUI)",
     version = "0.21a",
     description = 'A small application that converts data to binary and hexadecimal - back and forth.',
     author = 'Leo Durrant',
     author_email = 'alexdrinka@outlook.com',
     options = options,
-    executables = [Executable("Converter.py", base=base, targetName=executableName, icon=executableIcon, copyright=copyright,)]
+    executables = [Executable("ConverterGUI.py", base=base, targetName=executableName, icon=executableIcon, copyright=copyright,)]
 )

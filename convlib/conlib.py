@@ -1,8 +1,9 @@
+#!/usr/bin/python3
 import re
 
-appname="LBT Conversion module"
+appname="Converter conversion module"
 author="Leo Durrant (2017)"
-buliddate="12/01/17"
+buliddate="27/09/17"
 version="0.21a"
 release="alpha"
 licenseabout="""

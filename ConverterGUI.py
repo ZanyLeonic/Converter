@@ -27,17 +27,17 @@ except Exception as e:
     sys.exit(1)
     
 try:
-    from lbtlib import *
+    from convlib import *
 except Exception as e:
-    messagebox.showerror("Fatal error", "Unable to load lbtlib. Please redownload this program or download lbtlib from http://github.com/ZanyLeonic/Converter\nException: {}".format(str(e)))
-    print("Unable to load lbtlib. Please redownload this program or download lbtlib from http://github.com/ZanyLeonic/Converter\nException: {}".format(str(e)))
+    messagebox.showerror("Fatal error", "Unable to load convlib. Please redownload this program or download convlib from http://github.com/ZanyLeonic/Converter\nException: {}".format(str(e)))
+    print("Unable to load convlib. Please redownload this program or download convlib from http://github.com/ZanyLeonic/Converter\nException: {}".format(str(e)))
     sys.exit(1)
 
 # App info
 appname="Converter"
 author="Leo Durrant (2016/17)"
-buliddate="10/10/16"
-version="0.2a"
+buliddate="27/09/17"
+version="0.21a"
 release="alpha"
 
 # App resources
@@ -80,7 +80,29 @@ githuburl="http://github.com/ZanyLeonic/Converter/"
 patchnotesurl="http://zanyleonic.github.io/UpdateInfo/Converter/latest.info"
 logger=logging.getLogger("[Converter]")
 conversionsaved=0
-currentdir=os.path.dirname(os.path.realpath(__file__))
+appfrozen=False
+
+# Check if the app is frozen
+if getattr(sys, 'frozen', False):
+    appfrozen = True
+
+if appfrozen == True and iolib.isexe64bit() == True:
+    onlineversioninfourl="http://zanyleonic.github.io/UpdateInfo/Converter/win64/version.ver"
+    latestversionurl="http://zanyleonic.github.io/UpdateInfo/Converter/win64/latest.url"
+    patchnotesurl="http://zanyleonic.github.io/UpdateInfo/Converter/win64/latest.info"
+elif appfrozen == True and iolib.isexe64bit() == False:
+    onlineversioninfourl="http://zanyleonic.github.io/UpdateInfo/Converter/win32/version.ver"
+    latestversionurl="http://zanyleonic.github.io/UpdateInfo/Converter/win32/latest.url"
+    patchnotesurl="http://zanyleonic.github.io/UpdateInfo/Converter/win32/latest.info"
+
+#cx_freeze
+if appfrozen == True:
+    # Using cx_freeze
+    currentdir=os.path.dirname(sys.executable)
+else:
+    # Running as a script.
+    currentdir=os.path.dirname(os.path.realpath(__file__))
+    
 systemos=iolib.systemos()
 patchnotesopen=False
 
@@ -277,7 +299,12 @@ def setloggingoptions():
                 logger.addHandler(handler)
                 logger.handlers.pop()
                 logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
-                logger.info('Running on {} version {}.'.format(platform.system(), platform.release()))
+                logger.info('Running on {} version {} {}.'.format(platform.system(), platform.release(), platform.machine()))
+                # cx_freeze?
+                if appfrozen == True:
+                    logger.info("Currently running the frozen version. Compiled by cx_freeze.")
+                else:
+                    logger.info("Currently running from the Python script.")
                 logger.info("%s version (%s %s) started in directory: %s", appname, version, release, currentdir)
                 break
             except Exception as e:
@@ -706,13 +733,13 @@ def createaboutwindow():
 
     if systemos == 0:
         windowwidth=475
-        windowheight=350
+        windowheight=375
     elif systemos == 1:
         windowwidth=625
-        windowheight=350
+        windowheight=375
     else:
         windowwidth=625
-        windowheight=350
+        windowheight=375
 
     aboutwindow = Toplevel()
     
@@ -729,21 +756,66 @@ def createaboutwindow():
     aboutwindow.resizable(width=False, height=False)
 
     try:
-        opensourcetext=iolib.readfromtextfile("data/text/opensourcelibraries.txt")
+        # Load the correct open source text file for corrisponding modes.
+        if appfrozen == False:
+            opensourcetext=iolib.readfromtextfile("data/text/opensourcelibraries.txt")
+        else:
+            opensourcetext=iolib.readfromtextfile("data/text/opensourcelibraries_cx.txt")
+            
         legalinfotext=iolib.readfromtextfile("data/text/legalinfo.txt")
-    except:
-        print("error lol")
-    
+    except Exception as e:
+        messagebox.showerror("Error", "Error while reading about text files.\n {}.".format(str(e)))
+
+    # Initialize the variable...
+    appflavourinfo=""
+
+    # Then decide what it is going to hold.
+    if appfrozen == True and iolib.isexe64bit() == True and iolib.systemos() == 0:
+        appflavourinfo="a 64-bit executable on Windows."
+    elif appfrozen == True and iolib.isexe64bit() == False and iolib.systemos() == 0:
+        appflavourinfo="a 32-bit executable on Windows."
+    elif appfrozen == False and iolib.isexe64bit() == True and iolib.systemos() == 0:
+        appflavourinfo="a script running on a 64-bit interpreter on Windows."
+    elif appfrozen == False and iolib.isexe64bit() == False and iolib.systemos() == 0:
+        appflavourinfo="a script running on a 32-bit interpreter on Windows."
+    elif appfrozen == True and iolib.isexe64bit() == True and iolib.systemos() == 1:
+        appflavourinfo="a 64-bit executable on Linux."
+    elif appfrozen == True and iolib.isexe64bit() == False and iolib.systemos() == 1:
+        appflavourinfo="a 32-bit executable on Linux."
+    elif appfrozen == False and iolib.isexe64bit() == True and iolib.systemos() == 1:
+        appflavourinfo="a script running on a 64-bit interpreter on Linux."
+    elif appfrozen == False and iolib.isexe64bit() == False and iolib.systemos() == 1:
+        appflavourinfo="a script running on a 32-bit interpreter on Linux."
+    elif appfrozen == True and iolib.isexe64bit() == True and iolib.systemos() == 2:
+        appflavourinfo="a 64-bit executable on MacOS."
+    elif appfrozen == True and iolib.isexe64bit() == False and iolib.systemos() == 2:
+        appflavourinfo="a 32-bit executable on MacOS."
+    elif appfrozen == False and iolib.isexe64bit() == True and iolib.systemos() == 2:
+        appflavourinfo="a script running on a 64-bit interpreter on MacOS."
+    elif appfrozen == False and iolib.isexe64bit() == False and iolib.systemos() == 2:
+        appflavourinfo="a script running on a 32-bit interpreter on MacOS."
+    elif appfrozen == True and iolib.isexe64bit() == True and iolib.systemos() == 3:
+        appflavourinfo="a 64-bit executable on Unknown."
+    elif appfrozen == True and iolib.isexe64bit() == False and iolib.systemos() == 3:
+        appflavourinfo="a 32-bit executable on Unknown."
+    elif appfrozen == False and iolib.isexe64bit() == True and iolib.systemos() == 3:
+        appflavourinfo="a script running on a 64-bit interpreter on Unknown."
+    elif appfrozen == False and iolib.isexe64bit() == False and iolib.systemos() == 3:
+        appflavourinfo="a script running on a 32-bit interpreter on Unknown."
+    else:
+        appflavourinfo="an Unknown mode on an Unknown OS."
+        
     panel1=Frame(aboutwindow, padx=5, pady=5, width=str(windowwidth))
     links=LabelFrame(aboutwindow, padx=5, pady=5, width=str(windowwidth), height=10, text="")
     
-    lbt_logo= PhotoImage(file=abouticon)
+    lbt_logo=PhotoImage(file=abouticon)
     logolabel=Label(panel1, image=lbt_logo, text="")
     
     about_name=Label(panel1, text=appname)
     about_license=Label(panel1, text="This product '{}' , '{}'\n and '{}' are all under the GPLv3 license.\nClick the 'Legal info' button below for more infomation.".format(appname, conlib.appname, iolib.appname)) 
     about_verinfo=Label(panel1, text="Version: {} ({})".format(version, release), width=str(windowwidth))
     about_appbuildinfo=Label(panel1, text="Written by {} on the {}".format(author, buliddate))
+    about_appflavour=Label(panel1, text="Running as {}".format(appflavourinfo))
     about_conlib=Label(panel1, text="{} {} ({}) by {}. \nBuilt on {}.".format(conlib.appname, conlib.version, conlib.release, conlib.author, conlib.buliddate), width=str(windowwidth))
     about_iolib=Label(panel1, text="{} {} ({}) by {}. \nBuilt on {}.".format(iolib.appname, iolib.version, iolib.release, iolib.author, iolib.buliddate), width=str(windowwidth))
     about_extrainfo=Label(panel1, text="Please report any bugs to the issues tracker on the\n Github repo and tell me what I can improve on this app.\n All feedback apperciated!", width=str(windowwidth))
@@ -763,6 +835,7 @@ def createaboutwindow():
     about_verinfo.pack()
     about_license.pack()
     about_appbuildinfo.pack()
+    about_appflavour.pack()
     about_conlib.pack()
     about_iolib.pack()
     about_extrainfo.pack()

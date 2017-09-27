@@ -68,6 +68,7 @@ target/
 data/*.ini
 data/logs/*.log
 
-# IDEs and text editors
-.vscode/
-.vs/
+# Build folders
+build*/
+win32/
+win64

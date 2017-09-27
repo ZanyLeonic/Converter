@@ -4,5 +4,5 @@ import sys
 sys.path.append(os.getcwd())
 
 #importing libs
-from lbtlib import conlib
-from lbtlib import iolib
+from convlib import conlib
+from convlib import iolib

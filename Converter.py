@@ -8,15 +8,15 @@ import configparser
 import logging
 import platform
 try:
-    import lbtlib
+    import convlib
 except Exception:
-    print("Unable to load lbtlib. Please redownload this program or download lbtlib from http://github.com/ZanyLeonic/Converter")
+    print("Unable to load convlib. Please redownload this program or download convlib from http://github.com/ZanyLeonic/Converter")
     sys.exit(1)
                  
 appname="Converter"
-author="Leo Durrant (2016)"
-buliddate="06/08/17"
-version="0.2a"
+author="Leo Durrant (2016/17)"
+buliddate="27/09/17"
+version="0.21a"
 release="alpha"
 configfilename="data//config_cmd.ini"
 configfilereadname=r"data/config_cmd.ini"
@@ -45,12 +45,33 @@ bCheckforupdatesonstartup=1
 bAppendtxtwhensaving=1
 onlineversioninfourl="http://zanyleonic.github.io/UpdateInfo/Converter/version.ver"
 latestversionurl="http://zanyleonic.github.io/UpdateInfo/Converter/latest.url"
-logger=logging.getLogger("[LBT]")
+logger=logging.getLogger("[Converter]")
 menu="null"
 menudisplayname="null"
+appfrozen=False
 
-currentdir=os.path.dirname(os.path.realpath(__file__))
-systemos=lbtlib.iolib.systemos()
+# Check if the app is frozen
+if getattr(sys, 'frozen', False):
+    appfrozen = True
+
+if appfrozen == True and convlib.iolib.isexe64bit() == True:
+    onlineversioninfourl="http://zanyleonic.github.io/UpdateInfo/Converter/win64/version.ver"
+    latestversionurl="http://zanyleonic.github.io/UpdateInfo/Converter/win64/latest.url"
+    patchnotesurl="http://zanyleonic.github.io/UpdateInfo/Converter/win64/latest.info"
+elif appfrozen == True and convlib.iolib.isexe64bit() == False:
+    onlineversioninfourl="http://zanyleonic.github.io/UpdateInfo/Converter/win32/version.ver"
+    latestversionurl="http://zanyleonic.github.io/UpdateInfo/Converter/win32/latest.url"
+    patchnotesurl="http://zanyleonic.github.io/UpdateInfo/Converter/win32/latest.info"
+
+#cx_freeze
+if appfrozen == True:
+    # Using cx_freeze
+    currentdir=os.path.dirname(sys.executable)
+else:
+    # Running as a script.
+    currentdir=os.path.dirname(os.path.realpath(__file__))
+
+systemos=convlib.iolib.systemos()
 
 def menutitle(menudisplayname):
         print("============================================")
@@ -143,6 +164,11 @@ def setloggingoptions():
                 logger.handlers.pop()
                 logger.debug('Started %s at %s on %s', appname, time.strftime("%H:%M:%S"), time.strftime("%d/%m/%Y"))
                 logger.info('Running on {} version {}.'.format(platform.system(), platform.release()))
+                # cx_freeze?
+                if appfrozen == True:
+                    logger.info("Currently running the frozen version. Compiled by cx_freeze.")
+                else:
+                    logger.info("Currently running from the Python script.")
                 logger.info("%s version (%s %s) started in directory: %s", appname, version, release, currentdir)
                 break
             except Exception as e:
@@ -159,8 +185,8 @@ def checkforupdates():
     print("Checking for updates...")
     status=0
     try:
-        onlineversion=lbtlib.iolib.readonlinefile(onlineversioninfourl)
-        downloadurl=lbtlib.iolib.readonlinefile(latestversionurl)
+        onlineversion=convlib.iolib.readonlinefile(onlineversioninfourl)
+        downloadurl=convlib.iolib.readonlinefile(latestversionurl)
     except Exception as e:
         status=1
         print("Failed to check for updates.\n Exception: %s" % (str(e)))
@@ -188,8 +214,51 @@ def checkforupdates():
                     print("Invalid option.")
                     update=True
         elif onlineversion==version:
-            print("LBT is up to date!")
-            logger.info("LBT is up to date. Version (%s)" % (version))
+            print("Converter is up to date!")
+            logger.info("Converter is up to date. Version (%s)" % (version))
+
+def getenvdesc():
+    # Initialize the variable...
+    appflavourinfo=""
+
+    # Then decide what it is going to hold.
+    if appfrozen == True and convlib.iolib.isexe64bit() == True and convlib.iolib.systemos() == 0:
+        appflavourinfo="a 64-bit executable on Windows."
+    elif appfrozen == True and convlib.iolib.isexe64bit() == False and convlib.iolib.systemos() == 0:
+        appflavourinfo="a 32-bit executable on Windows."
+    elif appfrozen == False and convlib.iolib.isexe64bit() == True and convlib.iolib.systemos() == 0:
+        appflavourinfo="a script running on a 64-bit interpreter on Windows."
+    elif appfrozen == False and convlib.iolib.isexe64bit() == False and convlib.iolib.systemos() == 0:
+        appflavourinfo="a script running on a 32-bit interpreter on Windows."
+    elif appfrozen == True and convlib.iolib.isexe64bit() == True and convlib.iolib.systemos() == 1:
+        appflavourinfo="a 64-bit executable on Linux."
+    elif appfrozen == True and convlib.iolib.isexe64bit() == False and convlib.iolib.systemos() == 1:
+        appflavourinfo="a 32-bit executable on Linux."
+    elif appfrozen == False and convlib.iolib.isexe64bit() == True and convlib.iolib.systemos() == 1:
+        appflavourinfo="a script running on a 64-bit interpreter on Linux."
+    elif appfrozen == False and convlib.iolib.isexe64bit() == False and convlib.iolib.systemos() == 1:
+        appflavourinfo="a script running on a 32-bit interpreter on Linux."
+    elif appfrozen == True and convlib.iolib.isexe64bit() == True and convlib.iolib.systemos() == 2:
+        appflavourinfo="a 64-bit executable on MacOS."
+    elif appfrozen == True and convlib.iolib.isexe64bit() == False and convlib.iolib.systemos() == 2:
+        appflavourinfo="a 32-bit executable on MacOS."
+    elif appfrozen == False and convlib.iolib.isexe64bit() == True and convlib.iolib.systemos() == 2:
+        appflavourinfo="a script running on a 64-bit interpreter on MacOS."
+    elif appfrozen == False and convlib.iolib.isexe64bit() == False and convlib.iolib.systemos() == 2:
+        appflavourinfo="a script running on a 32-bit interpreter on MacOS."
+    elif appfrozen == True and convlib.iolib.isexe64bit() == True and convlib.iolib.systemos() == 3:
+        appflavourinfo="a 64-bit executable on Unknown."
+    elif appfrozen == True and convlib.iolib.isexe64bit() == False and convlib.iolib.systemos() == 3:
+        appflavourinfo="a 32-bit executable on Unknown."
+    elif appfrozen == False and convlib.iolib.isexe64bit() == True and convlib.iolib.systemos() == 3:
+        appflavourinfo="a script running on a 64-bit interpreter on Unknown."
+    elif appfrozen == False and convlib.iolib.isexe64bit() == False and convlib.iolib.systemos() == 3:
+        appflavourinfo="a script running on a 32-bit interpreter on Unknown."
+    else:
+        appflavourinfo="an Unknown mode on an Unknown OS."
+    
+    return appflavourinfo
+
 def about():
     aboutmenu = True
     while aboutmenu:
@@ -197,9 +266,10 @@ def about():
         print("============================================")
         print(appname)
         print("Version %s" % (version))
+        print("Running as %s" % (getenvdesc()))
         print("Libraries in use:")
-        print("%s %s %s by %s. Built on %s." % (lbtlib.conlib.appname, lbtlib.conlib.version, lbtlib.conlib.release, lbtlib.conlib.author, lbtlib.conlib.buliddate))
-        print("%s %s %s by %s. Built on %s." % (lbtlib.iolib.appname, lbtlib.iolib.version, lbtlib.iolib.release, lbtlib.iolib.author, lbtlib.iolib.buliddate))
+        print("%s %s %s by %s. Built on %s." % (convlib.conlib.appname, convlib.conlib.version, convlib.conlib.release, convlib.conlib.author, convlib.conlib.buliddate))
+        print("%s %s %s by %s. Built on %s." % (convlib.iolib.appname, convlib.iolib.version, convlib.iolib.release, convlib.iolib.author, convlib.iolib.buliddate))
         print("This release is an %s release." % (release))
         print("Written by %s on the %s." % (author, buliddate))
         print(licenseabout)
@@ -257,12 +327,12 @@ def converttext2binary():
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
             try:
-                text=lbtlib.iolib.readfromtextfile(path)
+                text=convlib.iolib.readfromtextfile(path)
             except Exception as e:
                 print("Cannot read %s.\n Exception: %s" % (path, str(e)))
                 break
             try:
-                convertedtext=lbtlib.conlib.text2binary(text)
+                convertedtext=convlib.conlib.text2binary(text)
             except Exception as e:
                 print("Cannot convert %s.\n Exception: %s" % (text, str(e)))
                 break
@@ -283,7 +353,7 @@ def converttext2binary():
                     try:
                         if bAppendtxtwhensaving == 1:
                             path = path + ".txt"
-                        lbtlib.iolib.writetotextfile(convertedtext, path)
+                        convlib.iolib.writetotextfile(convertedtext, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                 
@@ -302,7 +372,7 @@ def converttext2binary():
             print("Please input the text you want to converted into binary below.")
             text=input(">>> ")
             try:
-                convertedtext=lbtlib.conlib.text2binary(text)
+                convertedtext=convlib.conlib.text2binary(text)
             except Exception as e:
                 print("Cannot converted %s.\n Exception: %s" % (text, str(e)))
             print("Your text has been converted into binary and now reads:")
@@ -321,7 +391,7 @@ def converttext2binary():
                     try:
                         if bAppendtxtwhensaving == 1:
                             path = path + ".txt"
-                        lbtlib.iolib.writetotextfile(convertedtext, path)
+                        convlib.iolib.writetotextfile(convertedtext, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                         
@@ -363,12 +433,12 @@ def convertbinary2text():
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
             try:
-                binary=lbtlib.iolib.readfromtextfile(path)
+                binary=convlib.iolib.readfromtextfile(path)
             except Exception as e:
                 print("Cannot read %s.\n Exception: %s" % (path, str(e)))
                 break
             try:
-                convertedbinary=lbtlib.conlib.binary2text(binary)
+                convertedbinary=convlib.conlib.binary2text(binary)
             except Exception as e:
                 print("Cannot convert %s.\n Exception: %s" % (binary, str(e)))
                 break
@@ -388,7 +458,7 @@ def convertbinary2text():
                     try:
                         if bAppendtxtwhensaving == 1:
                             path = path + ".txt"
-                        lbtlib.iolib.writetotextfile(convertedtext, path)
+                        convlib.iolib.writetotextfile(convertedtext, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
@@ -406,7 +476,7 @@ def convertbinary2text():
             print("Please input the binary you want to converted into text below.")
             binary=input(">>> ")
             try:
-                convertedtext=lbtlib.conlib.binary2text(binary)
+                convertedtext=convlib.conlib.binary2text(binary)
             except Exception as e:
                 print("Cannot convert %s.\n Exception: %s" % (binary, str(e)))
             print("Your binary has been converted into text and now reads:")
@@ -425,7 +495,7 @@ def convertbinary2text():
                     try:
                         if bAppendtxtwhensaving == 1:
                             path = path + ".txt"
-                        lbtlib.iolib.writetotextfile(convertedtext, path)
+                        convlib.iolib.writetotextfile(convertedtext, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
@@ -465,12 +535,12 @@ def convertint2binary():
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
             try:
-                integer=lbtlib.iolib.readfromtextfile(path)
+                integer=convlib.iolib.readfromtextfile(path)
             except Exception as e:
                 print("Cannot read %s.\n Exception: %s" % (path, str(e)))
                 break
             try:
-                convertedinteger=lbtlib.conlib.int2binary(integer)
+                convertedinteger=convlib.conlib.int2binary(integer)
             except Exception as e:
                 print("Cannot convert %s.\n Exception: %s" % (integer, str(e)))
                 break
@@ -490,7 +560,7 @@ def convertint2binary():
                     try:
                         if bAppendtxtwhensaving == 1:
                             path = path + ".txt"
-                        lbtlib.iolib.writetotextfile(convertedinteger, path)
+                        convlib.iolib.writetotextfile(convertedinteger, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
@@ -508,7 +578,7 @@ def convertint2binary():
             print("Please input the integer you want to converted into binary below.")
             integer=input(">>> ")
             try:
-                convertedinteger=lbtlib.conlib.int2binary(integer)
+                convertedinteger=convlib.conlib.int2binary(integer)
             except Exception as e:
                 print("Cannot convert %s.\n Exception: %s" % (integer, str(e)))
                 break
@@ -528,7 +598,7 @@ def convertint2binary():
                     try:
                         if bAppendtxtwhensaving == 1:
                             path = path + ".txt"
-                        lbtlib.iolib.writetotextfile(convertedinteger, path)
+                        convlib.iolib.writetotextfile(convertedinteger, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
@@ -569,12 +639,12 @@ def convertbinary2int():
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
             try:
-                binary=lbtlib.iolib.readfromtextfile(path)
+                binary=convlib.iolib.readfromtextfile(path)
             except Exception as e:
                 print("Cannot read %s.\n Exception: %s" % (path, str(e)))
                 break
             try:
-                convertedbinary=lbtlib.conlib.binary2int(binary)
+                convertedbinary=convlib.conlib.binary2int(binary)
             except Exception as e:
                 print("Cannot convert %s.\n Exception: %s" % (binary, str(e)))
                 break
@@ -594,7 +664,7 @@ def convertbinary2int():
                     try:
                         if bAppendtxtwhensaving == 1:
                             path = path + ".txt"
-                        lbtlib.iolib.writetotextfile(convertedbinary, path)
+                        convlib.iolib.writetotextfile(convertedbinary, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
@@ -612,7 +682,7 @@ def convertbinary2int():
             print("Please input the binary you want to converted into an integer below.")
             binary=input(">>> ")
             try:
-                convertedbinary=lbtlib.conlib.binary2int(binary)
+                convertedbinary=convlib.conlib.binary2int(binary)
             except Exception as e:
                 print("Cannot convert %s.\n Exception: %s" % (binary, str(e)))
                 break
@@ -632,7 +702,7 @@ def convertbinary2int():
                     try:
                         if bAppendtxtwhensaving == 1:
                             path = path + ".txt"
-                        lbtlib.iolib.writetotextfile(convertedbinary, path)
+                        convlib.iolib.writetotextfile(convertedbinary, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
@@ -673,12 +743,12 @@ def converttextinttohex():
             print("Please enter a path to the text file you wish to convert.")
             path=input(">>> ")
             try:
-                txtint=lbtlib.iolib.readfromtextfile(path)
+                txtint=convlib.iolib.readfromtextfile(path)
             except Exception as e:
                 print("Cannot read %s.\n Exception: %s" % (path, str(e)))
                 break
             try:
-                convertedtext=lbtlib.conlib.text2hexdec(txtint)
+                convertedtext=convlib.conlib.text2hexdec(txtint)
             except Exception as e:
                 print("Cannot convert %s.\n Exception: %s" % (binary, str(e)))
                 break
@@ -698,7 +768,7 @@ def converttextinttohex():
                     try:
                         if bAppendtxtwhensaving == 1:
                             path = path + ".txt"
-                        lbtlib.iolib.writetotextfile(convertedtext, path)
+                        convlib.iolib.writetotextfile(convertedtext, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
@@ -716,7 +786,7 @@ def converttextinttohex():
             print("Please input the binary you want to converted into an integer below.")
             text=input(">>> ")
             try:
-                convertedtext=lbtlib.conlib.text2hexdec(text)
+                convertedtext=convlib.conlib.text2hexdec(text)
             except Exception as e:
                 print("Cannot convert %s.\n Exception: %s" % (text, str(e)))
                 break
@@ -736,7 +806,7 @@ def converttextinttohex():
                     try:
                         if bAppendtxtwhensaving == 1:
                             path = path + ".txt"
-                        lbtlib.iolib.writetotextfile(convertedtext, path)
+                        convlib.iolib.writetotextfile(convertedtext, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
@@ -778,12 +848,12 @@ def converthextotextint():
             print("Note: Make sure each hex is on a different line in order for the hex to be converted correctly.")
             path=input(">>> ")
             try:
-                hexin=lbtlib.iolib.readfromtextfile(path)
+                hexin=convlib.iolib.readfromtextfile(path)
             except Exception as e:
                 print("Cannot read %s.\n Exception: %s" % (path, str(e)))
                 break
             try:
-                convertedhex=lbtlib.conlib.hexdec2text(hexin)
+                convertedhex=convlib.conlib.hexdec2text(hexin)
             except Exception as e:
                 print("Cannot convert %s.\n Exception: %s" % (binary, str(e)))
                 break
@@ -803,7 +873,7 @@ def converthextotextint():
                     try:
                         if bAppendtxtwhensaving == 1:
                             path = path + ".txt"
-                        lbtlib.iolib.writetotextfile(convertedhex, path)
+                        convlib.iolib.writetotextfile(convertedhex, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
@@ -823,7 +893,7 @@ def converthextotextint():
             print("Note: Use a text file to convert the hex or the GUI version to avoid this.")
             hexin=input(">>> ")
             try:
-                convertedhex=lbtlib.conlib.hexdec2text(hexin)
+                convertedhex=convlib.conlib.hexdec2text(hexin)
             except Exception as e:
                 print("Cannot convert %s.\n Exception: %s" % (hexin, str(e)))
                 break
@@ -843,7 +913,7 @@ def converthextotextint():
                     try:
                         if bAppendtxtwhensaving == 1:
                             path = path + ".txt"
-                        lbtlib.iolib.writetotextfile(convertedhex, path)
+                        convlib.iolib.writetotextfile(convertedhex, path)
                     except Exception as e:
                         print("Cannot write %s.\n Exception: %s" % (path, str(e)))
                     writetotextfilemenu=False
@@ -895,10 +965,10 @@ def settings():
                 print("Settings>General")
                 print("============================================")
                 print("""
-                Please type the number of a setting to toggle or set.
-                1. Logging (Current value: %s)
-                2. Append '.txt' when saving (Current value: %s)
-                3. Back to main menu
+         Please type the number of a setting to toggle or set.
+            1. Logging (Current value: %s)
+            2. Append '.txt' when saving (Current value: %s)
+            3. Back to main menu
                 """ % (bLoggingEnabledcurval, bAppendtxtwhensavingcurval))
                 print("============================================")
                 sets1 = input(">>> ")
@@ -932,9 +1002,9 @@ def settings():
                 print("Settings>Updater")
                 print("============================================")
                 print("""
-                Please type the number of a setting to toggle or set.
-                1. Check for updates on startup (Current value: %s)
-                2. Back to main menu
+        Please type the number of a setting to toggle or set.
+            1. Check for updates on startup (Current value: %s)
+            2. Back to main menu
                 """ % (updatercurval))
                 print("============================================")
                 sets2 = input(">>> ")
@@ -1034,4 +1104,3 @@ while mainmenusel:
     else:
         print("Invalid selection.")
         mainmenusel = True
-        

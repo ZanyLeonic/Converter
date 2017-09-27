@@ -1,10 +1,9 @@
-import urllib.request
-import webbrowser
-import platform
+#!/usr/bin/python3
+import sys, platform, urllib.request, webbrowser
 
-appname="LBT IO functions module"
+appname="Converter IO functions module"
 author="Leo Durrant (2017)"
-buliddate="06/08/17"
+buliddate="27/09/17"
 version="0.22a"
 release="alpha"
 licenseabout="""
@@ -65,7 +64,12 @@ def systemos():
         return 2
     else:
         return 3
-    
+
+def isexe64bit():
+     is_64bit = sys.maxsize > 2**32
+     
+     return is_64bit
+
 if __name__ == "__main__":
     print("%s by %s." % (appname, author))
     print("Version: %s %s built on %s" % (version, release, buliddate))
@@ -77,6 +81,7 @@ if __name__ == "__main__":
         readonlinefile(url)        - Attempts to read the file specified in the URL returns text. If it fails, returns errorcode.
         openinwebbrowser(url, suppressopenmsg=False) - Attempts to open URL in the default webbrowser. Displays a message after if not supressopenmsg = True.
         systemos()                 - Returns the systems OS for code for certain OSes.
+        isexe64bit()               - Returns the current interpreter's bits for the intergrated updater and for certain features.
     For further releases and information check out the links below.""")
     print("""
     Wordpress: http://leonicweb.wordpress.com/
