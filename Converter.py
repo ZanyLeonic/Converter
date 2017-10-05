@@ -7,6 +7,7 @@ import webbrowser
 import configparser
 import logging
 import platform
+import ctypes
 try:
     import convlib
 except Exception:
@@ -74,11 +75,11 @@ else:
 systemos=convlib.iolib.systemos()
 
 def menutitle(menudisplayname):
-        print("============================================")
-        print("Welcome to %s!" % (appname))
-        print("Version %s" % (version))
-        print("Mode: %s" % (menudisplayname))
-        print("============================================")
+    print("============================================")
+    print("Welcome to %s!" % (appname))
+    print("Version %s" % (version))
+    print("Mode: %s" % (menudisplayname))
+    print("============================================")
 
 try:
     config = configparser.ConfigParser()
@@ -1035,6 +1036,7 @@ def pathnotice():
                         
 setloggingoptions()
 loadconfig()
+enabletitlechange()
 
 logger.info("%s loaded!" % (appname))
 logger.info("Version: %s %s" % (version,release))
@@ -1042,7 +1044,6 @@ logger.info("Version: %s %s" % (version,release))
 menu="main"
 mainmenusel = True
 while mainmenusel:
-
     print("============================================")
     print("Welcome to %s!" % (appname))
     print("Version %s" % (version))
